@@ -7,10 +7,17 @@
     \section{System Description}
 
         \subsection{Core Vision}
+        A battle royale game in Box-Head style. Instead of shooting zombies, shoot other players, with the last one standing winnning.
 
         \subsection{Key Features}
+        • Different lobbies
+        • Realtime backend simulation
+        • Ocaml web app
+        • Concurrency to deal with HTTP requests
+        • Combat with different weapons                   
 
         \subsection{Narrative Description}
+	When a user opens the main site, they're prompted to create a temporary display name. Then they'll be directed to the main lobby, where they can select a game. Players can only see and join games that haven't started yet (i.e. they don't have 4 people). Once they join, they spawn empty-handed at random locations through the map. Various weapons, ammunition, and health packs will drop initially, that players will have to search for and pick up. Different weapons will have different properties, like rate of fire, bullet velocity, and bullet spread. As the game goes on, a "wall of death" that encompasses the map will shrink, forcing players to congregate in the center and increasing tension.
 
     \section{System Design}
 	
@@ -19,6 +26,9 @@
 	\\
 	To ensure that the game is synced for all players, clients will request the game state approximately 30 times a second, although the exact number is still uncertain. 
 
+	\subsection{Client}
+        The client module will prompt the user to enter a username and to either start a new lobby or pick a lobby to join. The information will be sent to the server, which will start the game after four users are in a lobby. Once the game is started, the server will continually send updates of what the player sees to the client model. The client module will translate that into an image that the player will see. The player's actions such as moving, picking up items, and shooting, will be sent as an HTTP post request to the server. 
+    
     \section{Module Design}
 
         See interfaces.zip.
