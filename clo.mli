@@ -19,6 +19,3 @@ type direction = unit
 
 (* The location of an entity in the game map *)
 type location = unit
-
-(* The [item_id] is the name of the item *)
-type item_id = unit
