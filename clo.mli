@@ -16,3 +16,9 @@ type lobby_id = unit
 
 (* This will be a variant with 8 directions (N, NW, W, SW, S, SE, E, NE *)
 type direction = unit
+
+(* The location of an entity in the game map *)
+type location = unit
+
+(* The [item_id] is the name of the item *)
+type item_id = unit
