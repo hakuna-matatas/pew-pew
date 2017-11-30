@@ -7,22 +7,22 @@ open Clo
  ******************************************************************************)
 
 (* [get_world_state] returns the current world state of the model*)
-val get_world_state: id -> response
+val get_world_state: id -> state
 
 (* [move_location] tells the world where in which direction a player moved*)
-val move_location:  id -> direction -> response
+val move_location:  id -> direction -> state
 
 (* [fire] tells the world to fire a shot and for the user*)
-val fire: id -> response
+val fire: id -> state
 
 (* [take_item] takes a closeby item for the user *)
-val take_item: id -> response
+val take_item: id -> state
 
 (* [get_lobbies] gets thec current lobbies in the game*)
-val get_lobbies: id -> response
+val get_lobbies: id -> state
 
 (* [get_lobbies] allows the user to create a lobby *)
-val create_lobby: id -> response
+val create_lobby: id -> state
 
 (* [join_lobby] takes a player places them into a lobby_id *)
-val join_lobby: id -> lobby_id -> response
+val join_lobby: id -> lobby_id -> state
