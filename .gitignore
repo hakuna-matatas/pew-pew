@@ -4,3 +4,7 @@
 *.log
 *.gz
 *.tags
+_build*
+*.zip
+*.byte
+interfaces/*
