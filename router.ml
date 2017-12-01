@@ -9,25 +9,6 @@ open Cohttp_lwt_unix
    the appropriate information and give back the appropriate state to the user.
  ******************************************************************************)
 
-(* Handles serializing data into JSON format so it is easy to convert
-   maintain.
-*)
-module JsonHandler = struct
-  open Yojson
-
-  let json_of_dir: direction -> Yojson.json = failwith "Unimplemented"
-
-  let json_of_fire: unit -> Yojson.json = failwith "Unimplemented"
-
-  let json_of_take: unit -> Yojson.json = failwith "Unimplemented"
-
-  let json_of_join: unit -> Yojson.json = failwith "Unimplemented"
-
-  let json_of_create: unit -> Yojson.json = failwith "Unimplemented"
-
-end
-
-
 (* The [Router] module essentially defines the requests that can be made, and
     what type of request it is (i.e. GET, POST, etc.) and the corresponding
     URL address. Each request always needs an id, but the POST requests need
@@ -111,6 +92,7 @@ let make_newtwork_request
     The [id] is the unique identification of the user.
     Precondition: The router type is a GET request. *)
 let make_get_request id router map callback =
+  let map =  fun (code, resp) -> map resp in
   make_newtwork_request id router map callback
 
 (* [make_get_request] takes a [router] which specifies the type of the request
@@ -125,24 +107,25 @@ let make_post_request id router body map callback =
 (* [ident] returns itself. *)
 let ident = (fun x -> x)
 
+
 (******************************************************************************
    GET Requests
  ******************************************************************************)
 
+
 (* [get_world_state] returns the current world state of the model*)
-let get_world_state id callback =
-  make_get_request id GetState ident callback
+let get_world_state (id:Clo.id) (callback) : Clo.state =
+  make_get_request id GetState state_of_json callback
 
 (* [get_lobbies] gets thec current lobbies in the game*)
-let get_lobbies id callback =
-  make_get_request id GetLobby ident callback
+let get_lobbies (id:Clo.id) (callback:('a -> 'b)) : Clo.state=
+  make_get_request id GetLobby lobbies_of_json callback
 
 
 (******************************************************************************
    POST Requests
 ******************************************************************************)
 
-open JsonHandler
 
 (* [move_location] tells the world where in which direction a player moved*)
 let move_location id dir callback =
@@ -171,6 +154,6 @@ let create_lobby id callback =
 
 (* [join_lobby] takes a player places them into a lobby_id *)
 let join_lobby id lobby_id callback =
-  let json_body = json_of_join () in
+  let json_body = json_of_join lobby_id in
   let router = JoinLobby in
   make_post_request id router json_body ident callback

@@ -5,6 +5,10 @@
    parsed into and the parsed out of.
  ******************************************************************************)
 
+(******************************************************************************
+   TYPES
+ ******************************************************************************)
+
 (* The [lobby_id] is implemented by an integer*)
 type lobby_id = int
 
@@ -67,3 +71,70 @@ type state = {
   guns: gun list;
   bullets: bullet list;
 }
+
+(* This type represents one lobby *)
+type lobby = {
+  lobby_id: lobby_id;
+  players: id list;
+}
+
+(* This type represents multiple lobbies *)
+type lobbies = {
+  lobby_ids: lobby list;
+}
+
+(******************************************************************************
+   Helper Functions
+ ******************************************************************************)
+
+(* Handles serializing data into JSON format so it is easy to convert
+   maintain.
+*)
+
+open Yojson
+
+let string_of_dir = function
+  | North -> "north"
+  | NW -> "northwest"
+  | West -> "west"
+  | SW -> "southwest"
+  | South -> "south"
+  | SE -> "southeast"
+  | East -> "east"
+  | NE -> "northeast"
+
+
+let json_of_dir dir =
+  let str_dir =  string_of_dir dir in `String (str_dir)
+
+let json_of_fire () = `Null
+
+let json_of_take () = `Null
+
+let json_of_join lobby_id = `Int (lobby_id)
+
+let json_of_create () = `Null
+
+let loc_of_json json = failwith "Unimplemented"
+
+let dir_of_json json = failwith "Unimplemented"
+
+let guntype_of_json json = failwith "Unimplemented"
+
+let player_of_json json = failwith "Unimplemented"
+
+let players_of_json json = failwith "Unimplemented"
+
+let gun_of_json json = failwith "Unimplemented"
+
+let guns_of_json json = failwith "Unimplemented"
+
+let bullet_of_json json = failwith "Unimplemented"
+
+let bullets_of_json json = failwith "Unimplemented"
+
+let state_of_json json = failwith "Unimplemented"
+
+let lobby_of_json json = failwith "Unimplemented"
+
+let lobbies_of_json json = failwith "Unimplemented"
