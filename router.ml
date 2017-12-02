@@ -26,7 +26,7 @@ module Router = struct
 
   type request_type =
     | Get
-    | Post of Yojson.json
+    | Post of Yojson.Basic.json
 
   (* The exception that will be raised if a post request does not have a body *)
   exception NoPostBody
@@ -66,6 +66,15 @@ end
 
 open Router
 
+(* [resp_of_json] takes a (code,resp) from the Cohttp libary and converts the
+    response to a Json object. *)
+let json_of_resp (code, resp) =
+  Cohttp_lwt_body.to_string resp >|=
+    (fun s -> Yojson.Basic.from_string s)
+
+let resp_of_json body =
+  Yojson.Basic.to_string body |>  Cohttp_lwt_body.of_string
+
 (* [make_newtwork_request] takes the [id] and the type of the
      request [router] and attempts to make a network request for the user.
      The [map] function and deals with the response of the http function.
@@ -80,9 +89,9 @@ let make_newtwork_request
   let req_type = get_request_type router body in
   let mapped_body =
   match req_type with
-  | Get -> Client.get (Uri.of_string url) >|= map
-  | Post body -> Client.post ~body:(Yojson.to_string body |> Cohttp_lwt_body.of_string) (Uri.of_string url)
-    >|=  map in
+  | Get -> Client.get (Uri.of_string url) >>= json_of_resp >|= map
+  | Post body -> Client.post ~body:(resp_of_json body) (Uri.of_string url)
+    >>=  json_of_resp >|= map in
   let body = Lwt_main.run mapped_body in
   callback body
 
@@ -92,7 +101,6 @@ let make_newtwork_request
     The [id] is the unique identification of the user.
     Precondition: The router type is a GET request. *)
 let make_get_request id router map callback =
-  let map =  fun (code, resp) -> map resp in
   make_newtwork_request id router map callback
 
 (* [make_get_request] takes a [router] which specifies the type of the request
@@ -114,11 +122,11 @@ let ident = (fun x -> x)
 
 
 (* [get_world_state] returns the current world state of the model*)
-let get_world_state (id:Clo.id) (callback) : Clo.state =
+let get_world_state (id:Clo.id) (callback) =
   make_get_request id GetState state_of_json callback
 
 (* [get_lobbies] gets thec current lobbies in the game*)
-let get_lobbies (id:Clo.id) (callback:('a -> 'b)) : Clo.state=
+let get_lobbies (id:Clo.id) (callback) =
   make_get_request id GetLobby lobbies_of_json callback
 
 
@@ -126,34 +134,32 @@ let get_lobbies (id:Clo.id) (callback:('a -> 'b)) : Clo.state=
    POST Requests
 ******************************************************************************)
 
-
 (* [move_location] tells the world where in which direction a player moved*)
 let move_location id dir callback =
   let json_body = json_of_dir dir in
   let router = Move in
-  make_post_request id router json_body ident callback
-
+  make_post_request id router json_body state_of_json callback
 
 (* [fire] tells the world to fire a shot and for the user*)
 let fire id callback =
   let json_body = json_of_fire () in
   let router = Fire in
-  make_post_request id router json_body ident callback
+  make_post_request id router json_body state_of_json callback
 
 (* [take_item] takes a closeby item for the user *)
 let take_item id callback =
   let json_body = json_of_take () in
   let router = Take in
-  make_post_request id router json_body ident callback
+  make_post_request id router json_body state_of_json callback
 
 (* [get_lobbies] allows the user to create a lobby *)
 let create_lobby id callback =
   let json_body = json_of_create () in
   let router = CreateLobby in
-  make_post_request id router json_body ident callback
+  make_post_request id router json_body lobby_of_json callback
 
 (* [join_lobby] takes a player places them into a lobby_id *)
 let join_lobby id lobby_id callback =
   let json_body = json_of_join lobby_id in
   let router = JoinLobby in
-  make_post_request id router json_body ident callback
+  make_post_request id router json_body lobby_of_json callback

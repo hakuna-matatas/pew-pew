@@ -69,36 +69,36 @@ type lobbies = {
   lobby_ids: lobby list;
 }
 
-val json_of_dir: direction -> Yojson.json
+val json_of_dir: direction -> Yojson.Basic.json
 
-val json_of_fire: unit -> Yojson.json
+val json_of_fire: unit -> Yojson.Basic.json
 
-val json_of_take: unit -> Yojson.json
+val json_of_take: unit -> Yojson.Basic.json
 
-val json_of_join: int -> Yojson.json
+val json_of_join: int -> Yojson.Basic.json
 
-val json_of_create: unit -> Yojson.json
+val json_of_create: unit -> Yojson.Basic.json
 
-val loc_of_json: Yojson.json -> location
+val loc_of_json: Yojson.Basic.json -> location
 
-val dir_of_json: Yojson.json -> direction
+val dir_of_json: Yojson.Basic.json -> direction
 
-val guntype_of_json: Yojson.json -> gun_type
+val guntype_of_json: Yojson.Basic.json -> gun_type
 
-val player_of_json: Yojson.json -> player
+val player_of_json: Yojson.Basic.json -> player
 
-val players_of_json: Yojson.json -> player list
+val players_of_json: Yojson.Basic.json -> player list
 
-val gun_of_json: Yojson.json -> gun
+val gun_of_json: Yojson.Basic.json -> gun
 
-val guns_of_json: Yojson.json -> gun list
+val guns_of_json: Yojson.Basic.json -> gun list
 
-val bullet_of_json: Yojson.json -> bullet
+val bullet_of_json: Yojson.Basic.json -> bullet
 
-val bullets_of_json: Yojson.json -> bullet list
+val bullets_of_json: Yojson.Basic.json -> bullet list
 
-val state_of_json: Yojson.json -> state
+val state_of_json: Yojson.Basic.json -> state
 
-val lobby_of_json: Yojson.json -> lobby
+val lobby_of_json: Yojson.Basic.json -> lobby
 
-val lobbies_of_json: Yojson.json -> lobby list
+val lobbies_of_json: Yojson.Basic.json -> lobbies
