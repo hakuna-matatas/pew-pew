@@ -93,6 +93,7 @@ type lobbies = {
 
 open Yojson
 
+(* [string_of_dir] takes a direction and gives back the string representation *)
 let string_of_dir = function
   | North -> "north"
   | NW -> "northwest"
@@ -103,6 +104,7 @@ let string_of_dir = function
   | East -> "east"
   | NE -> "northeast"
 
+(* [dir_of_string] takes a string and gives back the appropriate direction *)
 let dir_of_string = function
   | "north" -> North
   | "northwest" -> NW
@@ -112,28 +114,38 @@ let dir_of_string = function
   | "southeast" -> SE
   | "east" -> East
   | "northeast" -> NE
-  | _ -> failwith "bad json"
+  | _ -> failwith "Unimplemented"
 
+(* [string_of_guntype] takes a gun and gives back its string representation *)
 let string_of_guntype = function
   | Pistol -> "pistol"
   | Lazer -> "lazer"
 
+(* [guntype_of_string] takes a string and gives back the gun that corresponds*)
 let guntype_of_string = function
   | "pistol" -> Pistol
   | "lazer" -> Lazer
-  | _ -> failwith "bad json"
+  | _ -> failwith "Unimplemented"
 
+(* [json_of_dir] dir constructs a json of direction*)
 let json_of_dir dir =
   let str_dir =  string_of_dir dir in `String (str_dir)
 
+(* [json_of_fire] constructs a null body as fire does not need a body *)
 let json_of_fire () = `Null
 
+(* [json_of_take] constructs a null body as take does not need a body *)
 let json_of_take () = `Null
 
+(* [json_of_join] constructs a json body which only
+   has one interger of a lobby_id in it *)
 let json_of_join lobby_id = `Int (lobby_id)
 
+(* [json_of_take] constructs a null body as take does not need a body *)
 let json_of_create () = `Null
 
+(* [loc_of_json] takes a [json] and converts it into a location. It first converts
+    the json into a list and then take the two first values *)
 let loc_of_json json =
   let open Yojson.Basic.Util in
   let two_vals = json |> to_list |> List.map to_int in
@@ -141,14 +153,20 @@ let loc_of_json json =
   let y = List.nth two_vals 1 in
   (x,y)
 
+(* [dir_of_json] takes [json] and builds a [direction] out of it *)
 let dir_of_json json =
   let open Yojson.Basic.Util in
   json |> to_string |> dir_of_string
 
+(* [gun_type_of_json] takes [json] and builds a [direction] out of it *)
 let guntype_of_json json =
   let open Yojson.Basic.Util in
   json |> to_string |> guntype_of_string
 
+
+(* [player_of_json] takes [json] and builds a [player] out of it by
+    getting the name, gun, location and direction of the player and storing
+    it in a record *)
 let player_of_json json =
   let open Yojson.Basic.Util in
   let name = json |> member "name" |> to_string in
@@ -160,10 +178,16 @@ let player_of_json json =
     player_loc = player_loc;
     dir = dir; }
 
+
+(* [players_of_json] takes a list of players and runs [player_of_json]
+    on each of them *)
 let players_of_json json =
   let open Yojson.Basic.Util in
   json |> member "players" |> to_list |> List.map player_of_json
 
+(* [gun_of_json] takes [json] and builds a [gun] out of it by
+    getting the gun, location and ammo of the gun and storing
+    it in a record *)
 let gun_of_json json =
   let open Yojson.Basic.Util in
   let gun = json |> member "gun" |> guntype_of_json in
@@ -173,10 +197,14 @@ let gun_of_json json =
     ammo = ammo;
     gun_loc = gun_loc; }
 
+(* [guns_of_json] takes a list of guns and runs [gun_of_json]
+    on each of them *)
 let guns_of_json json =
   let open Yojson.Basic.Util in
   json |> member "guns" |> to_list |> List.map gun_of_json
 
+(* [bullet_of_json] takes [json] and builds a [bullet] out of it by
+    getting the gun and location storing it in a record *)
 let bullet_of_json json =
   let open Yojson.Basic.Util in
   let gun = json |> member "gun" |> guntype_of_json in
@@ -184,10 +212,15 @@ let bullet_of_json json =
   { bullet = gun;
     bullet_loc = loc; }
 
+(* [bullets_of_json] takes a list of bullets and runs [bullet_of_json]
+    on each of them *)
 let bullets_of_json json =
   let open Yojson.Basic.Util in
   json |> member "bullets" |> to_list |> List.map bullet_of_json
 
+(* [state_of_json] takes [json] and builds a [state] out of it by
+    getting the players list, guns list and bullets list and storing
+    it in a state record *)
 let state_of_json json =
   let open Yojson.Basic.Util in
   let players = json |> member "points" |> to_list |> List.map player_of_json in
@@ -197,6 +230,9 @@ let state_of_json json =
     guns = guns;
     bullets = bullets; }
 
+(* [lobby_of_json] takes [json] and builds a [lobby] out of it by
+    getting the lobby id, player list in that lobby and storing
+    it in a state record *)
 let lobby_of_json json =
   let open Yojson.Basic.Util in
   let id = json |> member "id" |> to_int in
@@ -204,6 +240,8 @@ let lobby_of_json json =
   { lobby_id = id;
     lobby_players = lobby_players}
 
+(* [lobbies_of_json] takes a list of lobbies and runs [lobby_of_json]
+    on each of them *)
 let lobbies_of_json json =
   let open Yojson.Basic.Util in
   json |> member "lobbies" |> to_list |> List.map lobby_of_json
