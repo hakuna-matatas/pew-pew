@@ -10,7 +10,7 @@ open Clo
 val get_world_state: id -> (Clo.state -> 'a) -> 'a
 
 (* [get_lobbies] gets thec current lobbies in the game *)
-val get_lobbies: id -> (Clo.lobbies -> 'a) -> 'a
+val get_lobbies: id -> (Clo.lobby list -> 'a) -> 'a
 
 (* [move_location] tells the world where in which direction a player moved*)
 val move_location:  id -> Clo.direction -> (Clo.state -> 'a) -> 'a

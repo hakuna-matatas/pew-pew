@@ -34,26 +34,26 @@ type gun_type =
 type gun = {
   gun: gun_type;
   ammo: int;
-  loc: location;
+  gun_loc: location;
 }
 
 (* This record holds the information for a bullet inside the client *)
 type bullet = {
   bullet: gun_type;
-  loc: location;
+  bullet_loc: location;
 }
 
 (* This record holds the information for a player inside the client*)
 type player = {
   name: id;
-  gun: gun_type;
-  loc: location;
+  player_gun: gun_type;
+  player_loc: location;
   dir: direction;
 }
 
 (* This type respresents what the http [response] can give back.*)
 type state = {
-  players: player list;
+  state_players: player list;
   guns: gun list;
   bullets: bullet list;
 }
@@ -61,13 +61,9 @@ type state = {
 (* This type represents one lobby *)
 type lobby = {
   lobby_id: lobby_id;
-  players: id list;
+  lobby_players: id list;
 }
 
-(* This type represents multiple lobbies *)
-type lobbies = {
-  lobby_ids: lobby list;
-}
 
 val json_of_dir: direction -> Yojson.Basic.json
 
@@ -101,4 +97,4 @@ val state_of_json: Yojson.Basic.json -> state
 
 val lobby_of_json: Yojson.Basic.json -> lobby
 
-val lobbies_of_json: Yojson.Basic.json -> lobbies
+val lobbies_of_json: Yojson.Basic.json -> lobby list
