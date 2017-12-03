@@ -1,80 +1,146 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: localhost:8000
 
-# 3110-final
+# apex
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+Apex is a simple top-down 2D shooter, inspired by the classic Boxhead series
+and PlayerUnknown's Battlegrounds.
 
-## Questions Collection [/questions]
+# Group State
 
-### List All Questions [GET]
+## State [/lobby{?lobby_id}]
+### Get current world state [GET]
 
 + Response 200 (application/json)
 
         [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
+                "people": [
                     {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
+                        "name": "username",
+                        "gun": "pistol",
+                        "location": [1,2],
+                        "direction": "northwest"
+                    },
+                    {
+                        "name": "otherusername",
+                        "gun": "lazer",
+                        "location": [300, 490],
+                        "direction": "southeast"
+                    }
+                ]
+                ,
+                "guns": [
+                    {
+                        "name": "not-a-pistol",
+                        "ammo": 10,
+                        "location": [201, 321]
+                    },
+                    
+                    {
+                        "name": "anotha-gun",
+                        "ammo": 100,
+                        "location": [123, 321]
+
+                    },
+                
+                ]
+                ,
+                "bullets": [
+                    {
+                        "type": "lazer",
+                        "location": [12, 78]
+                    }, 
+                    {
+                        "type": "12mm",
+                        "location": [43, 12]
                     }
                 ]
             }
         ]
 
-### Create a New Question [POST]
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+# Group Player
+
+## Move [/move{?player_id}]
+### Update location [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
 
 + Request (application/json)
 
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
+            "direction": "north",
+        }
+
++ Response 200
+
+## Shoot [/shoot{?player_id}]
+### Fire equipped weapon [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
+    
++ Request (application/json)
+        
++ Response 200
+
+## Take [/take{?player_id}]
+### Pick up nearby items [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
+    
++ Request (application/json)
+
++ Response 200
+
+# Group Lobbies
+
+## List [/lobbies{?player_id}]
+### Retrieve all existing lobbies [GET]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
+    
++ Response 200
+
+        [ 
+            {
+                "name": "lobby1",
+                "current_players": ["player1", "player2"],
+            },
+            {
+                "name": "lobby2",
+                "current_players": ["player3", "player4"],
+            }
+        ]
+            
+
+## Create [/create{?player_id}]
+### Make new lobby [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
+
++ Request (application/json)
+
+        {
+            "name": "new-lobby",
+        }
++ Response 201 (application/json)
+
+## Join [/join{?player_id}]
+### Enter existing lobby [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current playe
+
++ Request (application/json)
+
+        {
+            "name": "old-lobby",
         }
 
 + Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
