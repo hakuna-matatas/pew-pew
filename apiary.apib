@@ -11,49 +11,92 @@ and PlayerUnknown's Battlegrounds.
 ## State [/lobby{?lobby_id}]
 ### Get current world state [GET]
 
+Returns the current state of the game running in lobby [lobby_id].
+
++ Parameters
+    + lobby_id (required, string) - The ID of the requested lobby.
+
 + Response 200 (application/json)
 
         [
             {
-                "people": [
+                "size": [5000.00, 10000.00],
+                "radius": 4000.00,
+                "ammo": [
                     {
-                        "name": "username",
                         "gun": "pistol",
-                        "location": [1,2],
-                        "direction": "northwest"
+                        "count": 5,
+                        "pos": [1.06, 9.20]
                     },
                     {
-                        "name": "otherusername",
+                        "gun": "not-a-pistol",
+                        "count": 10,
+                        "pos": [10.57, 3.19]
+                    }
+                ]
+                ,
+                "bullets": [
+                    {
                         "gun": "lazer",
-                        "location": [300, 490],
-                        "direction": "southeast"
+                        "radius": 500.00,
+                        "pos": [12.73, 78.95]
+                    }, 
+                    {
+                        "gun": "pistol",
+                        "radius": 3000.00,
+                        "pos": [19.32, 21.77]
+                    }
+                ]
+                ,
+                "people": [
+                    {
+                        "id"  : "username",
+                        "hp"  : 5,
+                        "pos" : [0.00, 2.00],
+                        "dir" : "NW",
+                        "inv" : ["anotha-gun", "pistol"]
+                    },
+                    {
+                        "id": "otherusername",
+                        "hp": 100,
+                        "pos": [300.55, 490.34],
+                        "dir": "S",
+                        "inv": []
                     }
                 ]
                 ,
                 "guns": [
                     {
-                        "name": "not-a-pistol",
-                        "ammo": 10,
-                        "location": [201, 321]
-                    },
-                    
+                        "id"    : "pistol",
+                        "ammo"  : 10000,
+                        "ready" : true,
+                        "owner" : "username",
+                        "pos"   : [0.00, 5.00]
+                    }
                     {
-                        "name": "anotha-gun",
-                        "ammo": 100,
-                        "location": [123, 321]
-
+                        "id"    : "not-a-pistol",
+                        "ammo"  : 10,
+                        "ready" : false,
+                        "owner" : "username",
+                        "pos"   : [201.32, 321.55]
                     },
-                
+                    {
+                        "id"    : "anotha-gun",
+                        "ammo"  : 100,
+                        "owner" : "",
+                        "ready" : true,
+                        "pos"   : [123.11, 321.11]
+                    },
                 ]
                 ,
-                "bullets": [
+                "rocks": [
                     {
-                        "type": "lazer",
-                        "location": [12, 78]
-                    }, 
+                        "radius" : 3.45,
+                        "pos"    : [56.12, 33.12]
+                    },
                     {
-                        "type": "12mm",
-                        "location": [43, 12]
+                        "radius" : 20.54,
+                        "pos"    : [52.32, 99.12]
                     }
                 ]
             }
@@ -70,11 +113,18 @@ and PlayerUnknown's Battlegrounds.
 
 + Request (application/json)
 
-        {
-            "direction": "north",
-        }
+        [
+            300.50, 
+            900.99
+        ]
 
 + Response 200
+
+        Ok. Position update accepted.
+    
++ Response 400
+    
+        Bad request. Excessive movement detected.
 
 ## Shoot [/shoot{?player_id}]
 ### Fire equipped weapon [POST]
