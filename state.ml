@@ -54,8 +54,8 @@ type state = {
   map     : map;
   time    : int;
   radius  : float;
-  ammo    : ammo list
-  bullets : bullet list
+  ammo    : ammo list;
+  bullets : bullet list;
   guns    : (g_id, gun   ) Hashtbl.t;
   rocks   : (r_id, rock  ) Hashtbl.t;
   players : (p_id, player) Hashtbl.t;
@@ -84,7 +84,7 @@ let gun_to_json g_id g acc =
   let g' = `Assoc [
     ("id"     , `String g.g_id);
     ("rate"   , `Float  g.rate);
-    ("ammo"   , `Float  g.ammo);
+    ("ammo"   , `Int    g.ammo);
     ("damage" , `Int    g.damage);
     ("pos"    , `List   [`Float x; `Float y])
   ] in
@@ -92,11 +92,12 @@ let gun_to_json g_id g acc =
   
 let player_to_json p_id p acc =
   let x, y = p.p_pos in
+  let inv' = List.map (fun g_id -> `String g_id) p.inv in
   let p'   = `Assoc [
     ("id"  , `String p.p_id);
     ("hp"  , `Int    p.hp);
     ("dir" , `String (dir_to_json p.dir));
-    ("inv" , `List   p.guns);
+    ("inv" , `List   inv');
     ("pos" , `List   [`Float x; `Float y])
   ] in
   p' :: acc
@@ -121,4 +122,4 @@ let to_json s =
     ("guns"    , guns);
     ("players" , players);
     ("rocks"   , rocks);
-  ]`
+  ]
