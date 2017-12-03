@@ -7,49 +7,51 @@ type r_id = int
 type s_id = string
 
 type ammo = {
-  gun   : g_id; 
-  count : int;
+  a_gun : g_id; 
   a_pos : pos;
+  a_amt : int;
 }
 
-type bullet = {
-  gun    : g_id;
-  player : p_id;
+and bullet = {
+  b_gun  : g_id;
+  b_own  : p_id;
   b_pos  : pos;
+  b_dmg  : int;
+  b_step : bullet -> state -> bullet;
 }
 
-type gun = {
+and gun = {
   g_id   : g_id;
   g_pos  : pos;
-  rate   : float;
-  ammo   : int;
-  damage : int;
+  g_fire : player -> bullet list;
+  g_rate : float;
+  g_ammo : int;
 }
 
-type player = {
+and player = {
   p_id  : p_id;
+  p_hp  : int;
   p_pos : pos;
-  hp    : int;
-  dir   : dir;
-  inv   : g_id list;
+  p_dir : dir;
+  p_inv : g_id list;
 }
 
-type rock = {
-  r_id   : r_id;
-  r_pos  : pos;
-  radius : float;
+and rock = {
+  r_id  : r_id;
+  r_pos : pos;
+  r_rad : float;
 }
 
-type entity = 
+and entity = 
 | Rock   of (r_id * pos) 
 | Bullet of (g_id * pos)
 | Ammo   of (g_id * pos)
 | Gun    of (g_id * pos)
 | Player of (p_id * pos)
 
-type map = (entity list) array array
+and map = (entity list) array array
 
-type state = {
+and state = {
   s_id    : s_id;
   map     : map;
   time    : int;
@@ -68,35 +70,35 @@ let dir_to_json = function
 let ammo_to_json a = 
   let x, y = a.a_pos in
   `Assoc [
-    ("gun", `String a.gun);
-    ("pos", `List [`Float x; `Float y])
+    ("gun"    , `String a.a_gun);
+    ("amount" , `Int    a.a_amt);
+    ("pos"    , `List   [`Float x; `Float y])
   ]
 
 let bullet_to_json b =
   let x, y = b.b_pos in
   `Assoc [
-    ("gun", `String b.gun);
-    ("pos", `List [`Float x; `Float y])
+    ("gun", `String b.b_gun);
+    ("pos", `List   [`Float x; `Float y])
   ]
 
 let gun_to_json g_id g acc =
   let x, y = g.g_pos in
   let g' = `Assoc [
     ("id"     , `String g.g_id);
-    ("rate"   , `Float  g.rate);
-    ("ammo"   , `Int    g.ammo);
-    ("damage" , `Int    g.damage);
+    ("rate"   , `Float  g.g_rate);
+    ("ammo"   , `Int    g.g_ammo);
     ("pos"    , `List   [`Float x; `Float y])
   ] in
   g' :: acc
   
 let player_to_json p_id p acc =
   let x, y = p.p_pos in
-  let inv' = List.map (fun g_id -> `String g_id) p.inv in
+  let inv' = List.map (fun g_id -> `String g_id) p.p_inv in
   let p'   = `Assoc [
     ("id"  , `String p.p_id);
-    ("hp"  , `Int    p.hp);
-    ("dir" , `String (dir_to_json p.dir));
+    ("hp"  , `Int    p.p_hp);
+    ("dir" , `String (dir_to_json p.p_dir));
     ("inv" , `List   inv');
     ("pos" , `List   [`Float x; `Float y])
   ] in
@@ -105,21 +107,21 @@ let player_to_json p_id p acc =
 let rock_to_json r_id r acc =
   let x, y = r.r_pos in
   let r'   = `Assoc [
-    ("radius", `Float r.radius);
-    ("pos", `List [`Float x; `Float y])
+    ("radius" , `Float r.r_rad);
+    ("pos"    , `List  [`Float x; `Float y])
   ] in
   r' :: acc
 
-let to_json s =
+let to_json_string s =
   let ammo    = `List (List.map ammo_to_json s.ammo) in
   let bullets = `List (List.map bullet_to_json s.bullets) in
   let guns    = `List (Hashtbl.fold gun_to_json s.guns []) in
   let players = `List (Hashtbl.fold player_to_json s.players []) in
   let rocks   = `List (Hashtbl.fold rock_to_json s.rocks []) in
-  `Assoc [
+  let s' = `Assoc [
     ("ammo"    , ammo);
     ("bullets" , bullets);
     ("guns"    , guns);
     ("players" , players);
     ("rocks"   , rocks);
-  ]
+  ] in s' |> Yojson.Basic.to_string

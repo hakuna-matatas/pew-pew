@@ -7,7 +7,7 @@ open Clo
 (* [state] is an abstract type representing the state of a game. *)
 type state 
 
-val create: () -> state
+val to_json_string: state -> string
 
 (* [add_player id st] adds the player with username [id] to the game
 
