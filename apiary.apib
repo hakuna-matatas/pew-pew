@@ -24,27 +24,29 @@ Returns the current state of the game running in lobby [lobby_id].
                 "radius": 4000.00,
                 "ammo": [
                     {
-                        "gun": "pistol",
-                        "count": 5,
-                        "pos": [1.06, 9.20]
+                        "gun"   : "pistol",
+                        "count" : 5,
+                        "pos"   : [1.06, 9.20],
+                        "rad"   : 25.00
                     },
                     {
-                        "gun": "not-a-pistol",
-                        "count": 10,
-                        "pos": [10.57, 3.19]
+                        "gun"   : "not-a-pistol",
+                        "count" : 10,
+                        "pos"   : [10.57, 3.19]
+                        "rad"   : 100.00
                     }
                 ]
                 ,
                 "bullets": [
                     {
-                        "gun": "lazer",
-                        "radius": 500.00,
-                        "pos": [12.73, 78.95]
+                        "gun" : "lazer",
+                        "rad" : 500.00,
+                        "pos" : [12.73, 78.95]
                     }, 
                     {
-                        "gun": "pistol",
-                        "radius": 3000.00,
-                        "pos": [19.32, 21.77]
+                        "gun" : "pistol",
+                        "rad" : 3000.00,
+                        "pos" : [19.32, 21.77]
                     }
                 ]
                 ,
@@ -53,15 +55,17 @@ Returns the current state of the game running in lobby [lobby_id].
                         "id"  : "username",
                         "hp"  : 5,
                         "pos" : [0.00, 2.00],
+                        "rad" : 5.00,
                         "dir" : "NW",
                         "inv" : ["anotha-gun", "pistol"]
                     },
                     {
-                        "id": "otherusername",
-                        "hp": 100,
-                        "pos": [300.55, 490.34],
-                        "dir": "S",
-                        "inv": []
+                        "id"  : "otherusername",
+                        "hp"  : 100,
+                        "pos" : [300.55, 490.34],
+                        "rad" : 5.00,
+                        "dir" : "S",
+                        "inv" : []
                     }
                 ]
                 ,
@@ -71,7 +75,8 @@ Returns the current state of the game running in lobby [lobby_id].
                         "ammo"  : 10000,
                         "ready" : true,
                         "owner" : "username",
-                        "pos"   : [0.00, 5.00]
+                        "pos"   : [0.00, 5.00],
+                        "rad"   : 5.00
                     }
                     {
                         "id"    : "not-a-pistol",
@@ -79,6 +84,7 @@ Returns the current state of the game running in lobby [lobby_id].
                         "ready" : false,
                         "owner" : "username",
                         "pos"   : [201.32, 321.55]
+                        "rad"   : 5.00
                     },
                     {
                         "id"    : "anotha-gun",
@@ -86,17 +92,18 @@ Returns the current state of the game running in lobby [lobby_id].
                         "owner" : "",
                         "ready" : true,
                         "pos"   : [123.11, 321.11]
+                        "rad"   : 5.00
                     },
                 ]
                 ,
                 "rocks": [
                     {
-                        "radius" : 3.45,
-                        "pos"    : [56.12, 33.12]
+                        "rad" : 3.45,
+                        "pos" : [56.12, 33.12]
                     },
                     {
-                        "radius" : 20.54,
-                        "pos"    : [52.32, 99.12]
+                        "rad" : 20.54,
+                        "pos" : [52.32, 99.12]
                     }
                 ]
             }
