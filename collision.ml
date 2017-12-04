@@ -90,3 +90,9 @@ let update g e =
     Hashtbl.replace g.grid c (e :: b)
   else
     Hashtbl.add g.grid c [e]
+
+let around (x, y) = [
+  (x-1, y+1); (x, y+1); (x+1, y+1)
+  (x-1, y);             (x+1, y);
+  (x-1, y-1); (x, y-1); (x+1, y-1)
+]

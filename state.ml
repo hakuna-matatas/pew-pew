@@ -1,3 +1,5 @@
+open Collision
+
 type pos = (float * float)
 type rad = float
 type dir = N | NE | E | SE | S | SW | W | NW
@@ -52,13 +54,11 @@ and entity =
 | Gun    of (id * rad * pos)
 | Player of (id * rad * pos)
 
-and map = (entity list) array array
-
 and t = {
   size    : pos;
   s_rad   : rad;
   s_id    : id;
-  map     : map;
+  map     : Collision.t;
   time    : int;
   ammo    : ammo list;
   bullets : bullet list;
