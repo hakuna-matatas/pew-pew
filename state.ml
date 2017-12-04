@@ -1,32 +1,28 @@
 type pos = (float * float)
 type rad = float
 type dir = N | NE | E | SE | S | SW | W | NW
-
-type g_id = string
-type p_id = string
-type r_id = int
-type s_id = string
+type id  = string
 
 type ammo = {
-  a_gun : g_id; 
+  a_gun : id; 
   a_pos : pos;
   a_rad : rad;
   a_amt : int;
 }
 
 and bullet = {
-  b_gun  : g_id;
-  b_own  : p_id;
+  b_gun  : id;
+  b_own  : id;
   b_pos  : pos;
   b_rad  : rad;
   b_dmg  : int;
-  b_step : bullet -> state -> bullet;
+  b_step : bullet -> t -> bullet;
 }
 
 and gun = {
-  g_id   : g_id;
+  g_id   : id;
   g_cd   : int;
-  g_own  : p_id;
+  g_own  : id;
   g_pos  : pos;
   g_rad  : rad;
   g_rate : int;
@@ -35,40 +31,40 @@ and gun = {
 }
 
 and player = {
-  p_id  : p_id;
+  p_id  : id;
   p_hp  : int;
   p_pos : pos;
   p_rad : rad;
   p_dir : dir;
-  p_inv : g_id list;
+  p_inv : id list;
 }
 
 and rock = {
-  r_id  : r_id;
+  r_id  : id;
   r_pos : pos;
   r_rad : rad;
 }
 
 and entity = 
-| Rock   of (r_id * rad * pos) 
-| Bullet of (g_id * rad * pos)
-| Ammo   of (g_id * rad * pos)
-| Gun    of (g_id * rad * pos)
-| Player of (p_id * rad * pos)
+| Rock   of (id * rad * pos) 
+| Bullet of (id * rad * pos)
+| Ammo   of (id * rad * pos)
+| Gun    of (id * rad * pos)
+| Player of (id * rad * pos)
 
 and map = (entity list) array array
 
-and state = {
+and t = {
   size    : pos;
   s_rad   : rad;
-  s_id    : s_id;
+  s_id    : id;
   map     : map;
   time    : int;
   ammo    : ammo list;
   bullets : bullet list;
-  guns    : (g_id, gun   ) Hashtbl.t;
-  rocks   : (r_id, rock  ) Hashtbl.t;
-  players : (p_id, player) Hashtbl.t;
+  guns    : (id, gun   ) Hashtbl.t;
+  rocks   : (id, rock  ) Hashtbl.t;
+  players : (id, player) Hashtbl.t;
 }
 
 let dir_to_json = function

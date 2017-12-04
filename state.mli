@@ -3,33 +3,32 @@
  ******************************************************************************)
 
 (* [state] is an abstract type representing the state of a game. *)
-type state 
+type t
 
 type pos = (float * float)
 type rad = float
 type dir = N | NE | E | SE | S | SW | W | NW
-
-type g_id = string
-type p_id = string
-type r_id = int
+type id  = string
 
 type entity = 
-| Rock   of (r_id * rad * pos) 
-| Bullet of (g_id * rad * pos)
-| Ammo   of (g_id * rad * pos)
-| Gun    of (g_id * rad * pos)
-| Player of (p_id * rad * pos)
+| Rock   of (id * rad * pos) 
+| Bullet of (id * rad * pos)
+| Ammo   of (id * rad * pos)
+| Gun    of (id * rad * pos)
+| Player of (id * rad * pos)
 
-val to_json_string: state -> string
+val to_json_string: t -> string
+
+val to_list: t -> entity list
 
 (* [add_player id st] adds the player with username [id] to the game
 
 	requires: [id] is a unique string representing the name of the
 						 player to be added *)
-val add_player: p_id -> state -> state
+val add_player: id -> t -> t
 
 (* [remove_player id st] removes the player with username [id] from the game 
 	 
 	 requires: [id] is the username of a player in the game. *) 
-val remove_player: p_id -> state -> state
+val remove_player: id -> t -> t
 
