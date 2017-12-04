@@ -1,80 +1,203 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: localhost:8000
 
-# 3110-final
+# apex
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+Apex is a simple top-down 2D shooter, inspired by the classic Boxhead series
+and PlayerUnknown's Battlegrounds.
 
-## Questions Collection [/questions]
+# Group State
 
-### List All Questions [GET]
+## State [/lobby{?lobby_id}]
+### Get current world state [GET]
+
+Returns the current state of the game running in lobby [lobby_id].
+
++ Parameters
+    + lobby_id (required, string) - The ID of the requested lobby.
 
 + Response 200 (application/json)
 
         [
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
+                "size": [5000.00, 10000.00],
+                "radius": 4000.00,
+                "ammo": [
                     {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
+                        "gun"   : "pistol",
+                        "count" : 5,
+                        "pos"   : [1.06, 9.20],
+                        "rad"   : 25.00
+                    },
+                    {
+                        "gun"   : "not-a-pistol",
+                        "count" : 10,
+                        "pos"   : [10.57, 3.19]
+                        "rad"   : 100.00
+                    }
+                ]
+                ,
+                "bullets": [
+                    {
+                        "gun" : "lazer",
+                        "rad" : 500.00,
+                        "pos" : [12.73, 78.95]
+                    }, 
+                    {
+                        "gun" : "pistol",
+                        "rad" : 3000.00,
+                        "pos" : [19.32, 21.77]
+                    }
+                ]
+                ,
+                "people": [
+                    {
+                        "id"  : "username",
+                        "hp"  : 5,
+                        "pos" : [0.00, 2.00],
+                        "rad" : 5.00,
+                        "dir" : "NW",
+                        "inv" : ["anotha-gun", "pistol"]
+                    },
+                    {
+                        "id"  : "otherusername",
+                        "hp"  : 100,
+                        "pos" : [300.55, 490.34],
+                        "rad" : 5.00,
+                        "dir" : "S",
+                        "inv" : []
+                    }
+                ]
+                ,
+                "guns": [
+                    {
+                        "id"    : "pistol",
+                        "ammo"  : 10000,
+                        "ready" : true,
+                        "owner" : "username",
+                        "pos"   : [0.00, 5.00],
+                        "rad"   : 5.00
+                    }
+                    {
+                        "id"    : "not-a-pistol",
+                        "ammo"  : 10,
+                        "ready" : false,
+                        "owner" : "username",
+                        "pos"   : [201.32, 321.55]
+                        "rad"   : 5.00
+                    },
+                    {
+                        "id"    : "anotha-gun",
+                        "ammo"  : 100,
+                        "owner" : "",
+                        "ready" : true,
+                        "pos"   : [123.11, 321.11]
+                        "rad"   : 5.00
+                    },
+                ]
+                ,
+                "rocks": [
+                    {
+                        "rad" : 3.45,
+                        "pos" : [56.12, 33.12]
+                    },
+                    {
+                        "rad" : 20.54,
+                        "pos" : [52.32, 99.12]
                     }
                 ]
             }
         ]
 
-### Create a New Question [POST]
 
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+# Group Player
+
+## Move [/move{?player_id}]
+### Update location [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
+
++ Request (application/json)
+
+        [
+            300.50, 
+            900.99
+        ]
+
++ Response 200
+
+        Ok. Position update accepted.
+    
++ Response 400
+    
+        Bad request. Excessive movement detected.
+
+## Shoot [/shoot{?player_id}]
+### Fire equipped weapon [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
+    
++ Request (application/json)
+        
++ Response 200
+
+## Take [/take{?player_id}]
+### Pick up nearby items [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
+    
++ Request (application/json)
+
++ Response 200
+
+# Group Lobbies
+
+## List [/lobbies{?player_id}]
+### Retrieve all existing lobbies [GET]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
+    
++ Response 200
+
+        [ 
+            {
+                "name": "lobby1",
+                "current_players": ["player1", "player2"],
+            },
+            {
+                "name": "lobby2",
+                "current_players": ["player3", "player4"],
+            }
+        ]
+            
+
+## Create [/create{?player_id}]
+### Make new lobby [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current player
 
 + Request (application/json)
 
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
+            "name": "new-lobby",
+        }
++ Response 201 (application/json)
+
+## Join [/join{?player_id}]
+### Enter existing lobby [POST]
+
++ Parameters
+    + player_id (required, int) - The ID of the current playe
+
++ Request (application/json)
+
+        {
+            "name": "old-lobby",
         }
 
 + Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
