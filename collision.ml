@@ -78,8 +78,7 @@ let sqdist (x1, y1) (x2, y2) =
   let y = y2 -. y1 in
     (x*.x) +. (y*.y)
 
-(* Determines if entities [e1] and [e2] intersect. *)
-let collision e1 e2 =
+let intersect e1 e2 =
   let r = (to_rad e1) +. (to_rad e2) in
   sqdist (to_pos e1) (to_pos e2) <= (r*.r)
 
@@ -91,7 +90,7 @@ let collision e1 e2 =
 let rec check g e bin = match bin with
 | []      -> ()
 | e' :: t -> 
-  let _ = if collision e e' then 
+  let _ = if intersect e e' then 
       g.coll <- ((e, e') :: g.coll) 
   else () in check g e t
 
@@ -129,15 +128,27 @@ let create s =
   | h :: t -> add g h; create' t in
   create' l
 
-let rec uncheck g e = function
-| []           -> ()
-| (e1, e2) :: t -> if e = e1
+(* Removes all collisions involving State.entity [e] from the
+ * collision list. 
+ *
+ * Does not preserve order of list.
+ * *)
+let uncheck g e = 
+  let rec uncheck' g e acc = function
+  | []           -> acc
+  | (e1, e2) :: t -> 
+    let id = to_id e in
+    if (id = to_id e1) || (id = to_id e2) then uncheck' g e acc t
+    else uncheck' g e ((e1, e2) :: t) t in
+  g.coll <- uncheck' g e [] g.coll
 
+(* Deletes State.entity [e] associated with [cells] from the spatial hashmap. *)
 let rec delete g e cells = match cells with
 | []     -> ()
 | c :: t ->
   let _ = if Hashtbl.mem g.grid c then
     let b  = Hashtbl.find g.grid c in
+    let _ = uncheck g e in
     let b' = bin_remove b e in
     if b' = [] then Hashtbl.remove g.grid c
     else Hashtbl.replace g.grid c b'
@@ -146,12 +157,9 @@ let rec delete g e cells = match cells with
 let remove g e = 
   let id = to_id e in
   if not (Hashtbl.mem g.prev id) then () else
-
   let cells  = Hashtbl.find g.prev id in
-
-
-
-
-
+  delete g e cells
 
 let update g e = remove g e; add g e
+
+let all g = g.coll
