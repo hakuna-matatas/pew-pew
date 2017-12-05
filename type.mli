@@ -3,6 +3,14 @@ type rad = float
 type dir = N | NE | E | SE | S | SW | W | NW
 type id  = string
 
+type scale = {
+  m_scale : float;
+  p_scale : float;
+  r_scale : float;
+  a_scale : float;
+  g_scale : float;
+}
+
 type ammo = {
   a_id  : id;
   a_gun : id; 
@@ -53,6 +61,9 @@ type entity =
 | Ammo   of (id * rad * pos)
 | Gun    of (id * rad * pos)
 | Player of (id * rad * pos)
+
+(* Returns size scalings for the game. *)
+val game_scale : unit -> scale
 
 (* Schema:
  *
