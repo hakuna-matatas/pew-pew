@@ -4,6 +4,7 @@ type dir = N | NE | E | SE | S | SW | W | NW
 type id  = string
 
 type ammo = {
+  a_id  : id;
   a_gun : id; 
   a_pos : pos;
   a_rad : rad;
@@ -11,6 +12,7 @@ type ammo = {
 }
 
 type bullet = {
+  b_id   : id;
   b_gun  : id;
   b_own  : id;
   b_pos  : pos;
@@ -70,6 +72,8 @@ let ammo_to_json a =
 
 let ammo_of_json j = failwith "Unimplemented"
 
+let ammo_to_entity a = Ammo (a.a_id, a.a_rad, a.a_pos)
+
 let bullet_to_json b =
   let x, y = b.b_pos in
   `Assoc [
@@ -79,6 +83,8 @@ let bullet_to_json b =
   ]
 
 let bullet_of_json j = failwith "Unimplemented"
+
+let bullet_to_entity b = Bullet (b.b_id, b.b_rad, b.b_pos)
 
 let gun_to_json g =
   let x, y = g.g_pos in
@@ -92,6 +98,8 @@ let gun_to_json g =
   ]
   
 let gun_of_json j = failwith "Unimplemented"
+
+let gun_to_entity g = Gun (g.g_id, g.g_rad, g.g_pos)
 
 let player_to_json p =
   let x, y = p.p_pos in
@@ -107,6 +115,8 @@ let player_to_json p =
 
 let player_of_json j = failwith "Unimplemented"
 
+let player_to_entity p = Player (p.p_id, p.p_rad, p.p_pos)
+
 let rock_to_json r =
   let x, y = r.r_pos in
   `Assoc [
@@ -115,3 +125,5 @@ let rock_to_json r =
   ]
 
 let rock_of_json j = failwith "Unimplemented"
+
+let rock_to_entity r = Rock (r.r_id, r.r_rad, r.r_pos)

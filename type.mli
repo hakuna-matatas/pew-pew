@@ -4,6 +4,7 @@ type dir = N | NE | E | SE | S | SW | W | NW
 type id  = string
 
 type ammo = {
+  a_id  : id;
   a_gun : id; 
   a_pos : pos;
   a_rad : rad;
@@ -11,6 +12,7 @@ type ammo = {
 }
 
 type bullet = {
+  b_id   : id;
   b_gun  : id;
   b_own  : id;
   b_pos  : pos;
@@ -74,6 +76,7 @@ val dir_of_json : Yojson.Basic.json -> dir
  *)
 val ammo_to_json : ammo -> Yojson.Basic.json 
 val ammo_of_json : Yojson.Basic.json -> ammo
+val ammo_to_entity : ammo -> entity
 
 (* Schema:
  *
@@ -85,6 +88,7 @@ val ammo_of_json : Yojson.Basic.json -> ammo
  *)
 val bullet_to_json : bullet -> Yojson.Basic.json
 val bullet_of_json : Yojson.Basic.json -> bullet
+val bullet_to_entity : bullet -> entity
 
 (* Schema:
  *
@@ -99,6 +103,7 @@ val bullet_of_json : Yojson.Basic.json -> bullet
  *)
 val gun_to_json : gun -> Yojson.Basic.json 
 val gun_of_json : Yojson.Basic.json -> gun
+val gun_to_entity : gun -> entity
 
 (* Schema:
  *
@@ -113,6 +118,7 @@ val gun_of_json : Yojson.Basic.json -> gun
  *)
 val player_to_json : player -> Yojson.Basic.json
 val player_of_json : Yojson.Basic.json -> player
+val player_to_entity : player -> entity
 
 (* Schema:
  *
@@ -123,3 +129,4 @@ val player_of_json : Yojson.Basic.json -> player
  *)
 val rock_to_json : rock -> Yojson.Basic.json
 val rock_of_json : Yojson.Basic.json -> rock
+val rock_to_entity : rock -> entity
