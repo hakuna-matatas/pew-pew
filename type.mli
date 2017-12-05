@@ -44,6 +44,7 @@ type gun = {
   g_own  : id;
   g_pos  : pos;
   g_rad  : rad;
+  g_type : id;
   g_rate : int;
   g_ammo : int;
   g_fire : player -> bullet list;

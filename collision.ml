@@ -12,11 +12,11 @@ type t = {
 
 (* Extracts unique IDs for each entity. *)
 let to_id = function
-| Ammo   (id, _, _) -> id ^ "a"
-| Bullet (id, _, _) -> id ^ "b"
-| Gun    (id, _, _) -> id ^ "g"
-| Player (id, _, _) -> id ^ "p"
-| Rock   (id, _, _) -> id ^ "r"
+| Ammo   (id, _, _) -> id
+| Bullet (id, _, _) -> id
+| Gun    (id, _, _) -> id
+| Player (id, _, _) -> id
+| Rock   (id, _, _) -> id
 
 (* Extracts radius of each entity. *)
 let to_rad = function
