@@ -13,7 +13,7 @@ type scale = {
 
 type ammo = {
   a_id  : id;
-  a_gun : id; 
+  a_gun : id;
   a_pos : pos;
   a_rad : rad;
   a_amt : int;
@@ -55,8 +55,8 @@ type rock = {
   r_rad : rad;
 }
 
-type entity = 
-| Rock   of (id * rad * pos) 
+type entity =
+| Rock   of (id * rad * pos)
 | Bullet of (id * rad * pos)
 | Ammo   of (id * rad * pos)
 | Gun    of (id * rad * pos)
@@ -75,9 +75,7 @@ let dir_to_json d = let s = match d with
 | S -> "S" | SW -> "SW" | W -> "W" | NW -> "NW"
 in `String s
 
-let dir_of_json j = failwith "Unimplemented"
-
-let ammo_to_json a = 
+let ammo_to_json a =
   let x, y = a.a_pos in
   `Assoc [
     ("gun"    , `String a.a_gun);
@@ -85,8 +83,6 @@ let ammo_to_json a =
     ("pos"    , `List   [`Float x; `Float y]);
     ("rad"    , `Float  a.a_rad)
   ]
-
-let ammo_of_json j = failwith "Unimplemented"
 
 let ammo_to_entity a = Ammo (a.a_id, a.a_rad, a.a_pos)
 
@@ -98,7 +94,6 @@ let bullet_to_json b =
     ("pos" , `List   [`Float x; `Float y])
   ]
 
-let bullet_of_json j = failwith "Unimplemented"
 
 let bullet_to_entity b = Bullet (b.b_id, b.b_rad, b.b_pos)
 
@@ -112,8 +107,6 @@ let gun_to_json g =
     ("pos"    , `List   [`Float x; `Float y]);
     ("rad" , `Float  g.g_rad)
   ]
-  
-let gun_of_json j = failwith "Unimplemented"
 
 let gun_to_entity g = Gun (g.g_id, g.g_rad, g.g_pos)
 
@@ -129,8 +122,6 @@ let player_to_json p =
     ("rad" , `Float  p.p_rad)
   ]
 
-let player_of_json j = failwith "Unimplemented"
-
 let player_to_entity p = Player (p.p_id, p.p_rad, p.p_pos)
 
 let rock_to_json r =
@@ -139,7 +130,5 @@ let rock_to_json r =
     ("pos" , `List  [`Float x; `Float y]);
     ("rad" , `Float r.r_rad)
   ]
-
-let rock_of_json j = failwith "Unimplemented"
 
 let rock_to_entity r = Rock (r.r_id, r.r_rad, r.r_pos)
