@@ -82,6 +82,28 @@ let collision_pg s p_id g_id =
     let _  = Hashtbl.replace s.guns g.g_id g' in
     Collision.remove s.map (gun_to_entity g); false
 
+let delete_bullet s b_id = 
+  let b = Hashtbl.find s.bullets b_id in
+  let _ = Hashtbl.remove s.bullets b_id in
+  let _ = Collision.remove s.map (bullet_to_entity b) in ()
+
+let collision_ba s b_id a_id = 
+  let a = Hashtbl.find s.ammo    a_id in
+  let _ = Hashtbl.remove s.ammo    a_id in
+  let _ = Collision.remove s.map (ammo_to_entity a) in
+  delete_bullet s b_id; false
+
+let collision_bb s b_id b_id' =
+  delete_bullet s b_id; delete_bullet s b_id'; false
+
+let collision_bg s b_id g_id =
+  let g = Hashtbl.find s.guns    g_id in
+  let _ = Hashtbl.remove s.guns    g_id in
+  let _ = Collision.remove s.map (gun_to_entity g) in
+  delete_bullet s b_id; false
+
+let collision_br s b_id r_id = delete_bullet s b_id; false
+
 let order e e' = match e, e' with
 | Bullet _, Player _
 | Ammo   _, Player _
@@ -96,12 +118,12 @@ let collision s (e, e') = match order e e' with
 | Player (p_id, _, _), Ammo   (a_id, _, _)  -> collision_pa s p_id a_id
 | Player (p_id, _, _), Bullet (b_id, _, _)  -> collision_pb s p_id b_id
 | Player (p_id, _, _), Gun    (g_id, _, _)  -> collision_pg s p_id g_id
-| Player (p_id, _, _), Rock   (r_id, _, _)  -> failwith "Unimplemented"
-| Player (p_id, _, _), Player (p_id', _, _) -> failwith "Unimplemented"
-| Bullet (b_id, _, _), Ammo   (a_id, _, _)  -> failwith "Unimplemented" 
-| Bullet (b_id, _, _), Bullet (b_id', _, _) -> failwith "Unimplemented"
-| Bullet (b_id, _, _), Gun    (g_id, _, _)  -> failwith "Unimplemented"
-| Bullet (b_id, _, _), Rock   (r_id, _, _)  -> failwith "Unimplemented"
+| Player (p_id, _, _), Rock   (r_id, _, _)  -> true
+| Player (p_id, _, _), Player (p_id', _, _) -> true
+| Bullet (b_id, _, _), Ammo   (a_id, _, _)  -> collision_ba s b_id a_id
+| Bullet (b_id, _, _), Bullet (b_id', _, _) -> collision_bb s b_id b_id'
+| Bullet (b_id, _, _), Gun    (g_id, _, _)  -> collision_bg s b_id g_id
+| Bullet (b_id, _, _), Rock   (r_id, _, _)  -> collision_br s b_id r_id
 | _, _ -> failwith "Error in map generation"  
 
 let step_bullet s b = List.map (fun b' -> b'.b_step b') b
