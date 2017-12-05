@@ -1,27 +1,46 @@
 include Type
 
-type t = int ref
+let buffer = 5.0
 
-let create () = ref 0
+(* Returns coordinates [d] units away from [x, y] in direction [dir]. *)
+let spawn (x, y) d dir = 
+  let d' = d *. (sqrt 2.0) /. 2.0 in match dir with
+  | N  -> (x       , y -. d )
+  | NE -> (x +. d' , y -. d')
+  | E  -> (x +. d  , y      )
+  | SE -> (x +. d' , y +. d')
+  | S  -> (x       , y +. d )
+  | SW -> (x -. d' , y +. d')
+  | W  -> (x -. d  , y      )
+  | NW -> (x -. d' , y -. d')
 
-let create_guns i n = failwith "Unimplemented"
+let fire_pistol p =
+  let rad = 5.0 in
+  let speed = 0.5 in
+  [{
+    b_id  = "Pistol_b";
+    b_gun = "Pistol";
+    b_own = p.p_id;
+    b_pos = spawn p.p_pos (p.p_rad +. rad +. buffer) p.p_dir;
+    b_rad = rad;
+    b_dmg = 5;
+    b_step = (fun b -> {b with b_pos = spawn b.b_pos speed p.p_dir});
+  }]
 
-let create_ammo i n = failwith "Unimplemented"
-
-let pistol i = 
-  let g = {
-    g_id   = "pistol" ^ (string_of_int !i);
+let pistol = 
+  {
+    g_id   = "Pistol";
     g_cd   = 0;
     g_own  = "";
     g_pos  = (0.00, 0.00); 
     g_rad  = 100.00;
     g_rate = 10;
     g_ammo = 20;
-  } 
-  
-  
-  
-  
-  
-  let _ = i := !i + 1 in
-  
+    g_fire = fire_pistol
+  }
+
+let all = [pistol]
+
+let create () = 
+  let n = Random.int (List.length all) in
+  List.nth all n

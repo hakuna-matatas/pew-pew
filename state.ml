@@ -5,6 +5,7 @@ type t = {
   mutable time  : int;
   size          : pos;
   s_id          : id;
+  gen           : Generate.t;
   map           : Collision.t;
   ammo          : (id, ammo)   Hashtbl.t;
   bullets       : (id, bullet) Hashtbl.t;
@@ -144,11 +145,69 @@ let collision s (e, e') = match order e e' with
 | Bullet (b_id, _, _), Rock   (r_id, _, _)  -> collision_br s b_id r_id
 | _, _ -> failwith "Error in map generation"  
 
+let rec repeat f n = 
+  if n <= 0 then () 
+  else let _ = f () in repeat f (n - 1)
+
+let free s = Collision.free s.map s.size
+
+let create_ammo s () =
+  let g = map_hash (fun g -> g.g_id) s.guns in
+  let a = Generate.ammo s.gen (free s) g in
+  let e = ammo_to_entity a in
+  let _ = Collision.update s.map e in
+  Hashtbl.add s.ammo a.a_id a
+
+let create_gun s () =
+  let g = Generate.gun s.gen (free s) in
+  let e = gun_to_entity g in
+  let _ = Collision.update s.map e in
+  Hashtbl.add s.guns g.g_id g
+
+let create_rock s () = 
+  let r = Generate.rock s.gen (free s) in
+  let e = rock_to_entity r in
+  let _ = Collision.update s.map e in
+  Hashtbl.add s.rocks r.r_id r
+
+let create id = 
+  let scale = Type.map_scale () in
+  let s = {
+    s_id    = id;     
+    s_rad   = scale.m_scale *. 1.20;
+    size    = (scale.m_scale, scale.m_scale);
+    time    = 0;
+    gen     = Generate.create ();
+    map     = Collision.create ();
+    ammo    = Hashtbl.create 50;
+    bullets = Hashtbl.create 50;
+    guns    = Hashtbl.create 10;
+    players = Hashtbl.create 4;
+    rocks   = Hashtbl.create 50;
+  } in
+  repeat (create_rock s) 50;
+  repeat (create_gun  s) 10;
+  repeat (create_ammo s) 50;
+  s
+
+(* Stepping implementation must do the following: 
+ *
+ * 1) Update position of all bullets
+ * 2) Handle collisions caused by bullet changes
+ * 3) Update all gun cooldowns TODO
+ * 4) Increase time step 
+ * 5) Decrease radius TODO
+ * 6) Check for out-of-bound players TODO
+ * 7) Spawn new ammo/guns TODO
+ *
+ *)
 let step s = 
   let _ = map_hash (fun b -> Hashtbl.replace s.bullets b.b_id (b.b_step b)) s.bullets in
   let _ = map_hash bullet_to_entity s.bullets |> List.iter (Collision.update s.map) in
   let _ = s.time <- s.time + 1 in 
   let _ = Collision.all s.map |> List.map (collision s) in ()
+
+
 
 let add_player = failwith "Unimplemented"
 let remove_player = failwith "Unimplemented"

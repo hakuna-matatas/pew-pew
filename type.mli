@@ -44,6 +44,7 @@ type gun = {
   g_own  : id;
   g_pos  : pos;
   g_rad  : rad;
+  g_type : id;
   g_rate : int;
   g_ammo : int;
   g_fire : player -> bullet list;
@@ -63,7 +64,7 @@ type entity =
 | Player of (id * rad * pos)
 
 (* Returns size scalings for the game. *)
-val game_scale : unit -> scale
+val map_scale : unit -> scale
 
 (* Schema:
  *

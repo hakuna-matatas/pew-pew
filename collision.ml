@@ -12,11 +12,11 @@ type t = {
 
 (* Extracts unique IDs for each entity. *)
 let to_id = function
-| Ammo   (id, _, _) -> id ^ "a"
-| Bullet (id, _, _) -> id ^ "b"
-| Gun    (id, _, _) -> id ^ "g"
-| Player (id, _, _) -> id ^ "p"
-| Rock   (id, _, _) -> id ^ "r"
+| Ammo   (id, _, _) -> id
+| Bullet (id, _, _) -> id
+| Gun    (id, _, _) -> id
+| Player (id, _, _) -> id
+| Rock   (id, _, _) -> id
 
 (* Extracts radius of each entity. *)
 let to_rad = function
@@ -53,7 +53,7 @@ let cell_compare (x1, y1) (x2, y2) = (x1 * scale + y1) - (x2 * scale + y2)
  * *)
 let to_cells e = 
   let x, y = to_pos e in 
-  let r = sqrt (to_rad e) /. 2.0 in
+  let r = (to_rad e) *. (sqrt 2.0) /. 2.0 in
   let l = List.map to_cell [(x-.r,y-.r); (x+.r,y-.r); (x-.r,y+.r); (x+.r,y+.r)] in
   List.sort_uniq cell_compare l
 
@@ -153,5 +153,11 @@ let remove g e =
   delete g e cells
 
 let update g e = remove g e; add g e
+
+let free g (w, h) =
+  let rec free' () = 
+    let pos = (Random.float w, Random.float h) in
+    if Hashtbl.mem g.grid (to_cell pos) then free' () else pos in
+  free' ()
 
 let all g = g.coll
