@@ -63,7 +63,7 @@ type entity =
 | Player of (id * rad * pos)
 
 (* Returns size scalings for the game. *)
-val game_scale : unit -> scale
+val map_scale : unit -> scale
 
 (* Schema:
  *

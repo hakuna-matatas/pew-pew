@@ -144,6 +144,17 @@ let collision s (e, e') = match order e e' with
 | Bullet (b_id, _, _), Rock   (r_id, _, _)  -> collision_br s b_id r_id
 | _, _ -> failwith "Error in map generation"  
 
+(* Stepping implementation must do the following: 
+ *
+ * 1) Update position of all bullets
+ * 2) Handle collisions caused by bullet changes
+ * 3) Update all gun cooldowns TODO
+ * 4) Increase time step 
+ * 5) Decrease radius TODO
+ * 6) Check for out-of-bound players TODO
+ * 7) Spawn new ammo/guns TODO
+ *
+ *)
 let step s = 
   let _ = map_hash (fun b -> Hashtbl.replace s.bullets b.b_id (b.b_step b)) s.bullets in
   let _ = map_hash bullet_to_entity s.bullets |> List.iter (Collision.update s.map) in

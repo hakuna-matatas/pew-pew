@@ -5,10 +5,19 @@
 (* [state] is an abstract type representing the state of a game. *)
 type t
 
-val create: Type.id -> t
+(* TODO *)
+val create : Type.id -> t
 
+(* TODO *)
+val free : t -> Type.pos
+
+(* TODO *)
+val guns : t -> Type.id list
+
+(* [to_json_string st] is the JSON representation of [st] as defined by the API. *)
 val to_json_string: t -> string
 
+(* [to_list st] is the list of all entities in [st]. *)
 val to_list: t -> Type.entity list
 
 (* [add_player id st] adds the player with username [id] to the game
