@@ -8,12 +8,6 @@ type t
 (* TODO *)
 val create : Type.id -> t
 
-(* TODO *)
-val free : t -> Type.pos
-
-(* TODO *)
-val guns : t -> Type.id list
-
 (* [to_json_string st] is the JSON representation of [st] as defined by the API. *)
 val to_json_string: t -> string
 

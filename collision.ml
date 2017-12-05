@@ -154,4 +154,10 @@ let remove g e =
 
 let update g e = remove g e; add g e
 
+let free g (w, h) =
+  let rec free' () = 
+    let pos = (Random.float w, Random.float h) in
+    if Hashtbl.mem g.grid (to_cell pos) then free' () else pos in
+  free' ()
+
 let all g = g.coll

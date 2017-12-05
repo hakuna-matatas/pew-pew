@@ -3,8 +3,8 @@ type t
 (* Creates an empty map. *)
 val create : unit -> t
 
-(* Finds an unoccupied point in map [t]. *)
-val free : t -> Type.pos
+(* Finds an unoccupied point in map [t] of size [(w, h)]. *)
+val free : t -> Type.pos -> Type.pos
     
 (* Updates an entity's radius and position in map [t].
  *
