@@ -53,7 +53,7 @@ let cell_compare (x1, y1) (x2, y2) = (x1 * scale + y1) - (x2 * scale + y2)
  * *)
 let to_cells e = 
   let x, y = to_pos e in 
-  let r = sqrt (to_rad e) /. 2.0 in
+  let r = (to_rad e) *. (sqrt 2.0) /. 2.0 in
   let l = List.map to_cell [(x-.r,y-.r); (x+.r,y-.r); (x-.r,y+.r); (x+.r,y+.r)] in
   List.sort_uniq cell_compare l
 
