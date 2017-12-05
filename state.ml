@@ -1,133 +1,29 @@
-open Collision
+include Type
 
-type pos = (float * float)
-type rad = float
-type dir = N | NE | E | SE | S | SW | W | NW
-type id  = string
-
-type ammo = {
-  a_gun : id; 
-  a_pos : pos;
-  a_rad : rad;
-  a_amt : int;
+type t = {
+  size            : pos;
+  mutable s_rad   : rad;
+  s_id            : id;
+  map             : Collision.t;
+  mutable time    : int;
+  mutable ammo    : ammo list;
+  mutable bullets : bullet list;
+  guns            : (id, gun) Hashtbl.t;
+  rocks           : (id, rock) Hashtbl.t;
+  players         : (id, player) Hashtbl.t;
 }
 
-and bullet = {
-  b_gun  : id;
-  b_own  : id;
-  b_pos  : pos;
-  b_rad  : rad;
-  b_dmg  : int;
-  b_step : bullet -> t -> bullet;
-}
-
-and gun = {
-  g_id   : id;
-  g_cd   : int;
-  g_own  : id;
-  g_pos  : pos;
-  g_rad  : rad;
-  g_rate : int;
-  g_ammo : int;
-  g_fire : player -> bullet list;
-}
-
-and player = {
-  p_id  : id;
-  p_hp  : int;
-  p_pos : pos;
-  p_rad : rad;
-  p_dir : dir;
-  p_inv : id list;
-}
-
-and rock = {
-  r_id  : id;
-  r_pos : pos;
-  r_rad : rad;
-}
-
-and entity = 
-| Rock   of (id * rad * pos) 
-| Bullet of (id * rad * pos)
-| Ammo   of (id * rad * pos)
-| Gun    of (id * rad * pos)
-| Player of (id * rad * pos)
-
-and t = {
-  size    : pos;
-  s_rad   : rad;
-  s_id    : id;
-  map     : Collision.t;
-  time    : int;
-  ammo    : ammo list;
-  bullets : bullet list;
-  guns    : (id, gun   ) Hashtbl.t;
-  rocks   : (id, rock  ) Hashtbl.t;
-  players : (id, player) Hashtbl.t;
-}
-
-let dir_to_json = function
-| N -> "N" | NE -> "NE" | E -> "E" | SE -> "SE"
-| S -> "S" | SW -> "SW" | W -> "W" | NW -> "NW"
-
-let ammo_to_json a = 
-  let x, y = a.a_pos in
-  `Assoc [
-    ("gun"    , `String a.a_gun);
-    ("amount" , `Int    a.a_amt);
-    ("pos"    , `List   [`Float x; `Float y]);
-    ("rad"    , `Float  a.a_rad)
-  ]
-
-let bullet_to_json b =
-  let x, y = b.b_pos in
-  `Assoc [
-    ("gun" , `String b.b_gun);
-    ("rad" , `Float  b.b_rad);
-    ("pos" , `List   [`Float x; `Float y])
-  ]
-
-let gun_to_json g_id g acc =
-  let x, y = g.g_pos in
-  let g' = `Assoc [
-    ("id"     , `String g.g_id);
-    ("owner"  , `String g.g_own);
-    ("ready"  , `Bool   (g.g_cd = 0));
-    ("ammo"   , `Int    g.g_ammo);
-    ("pos"    , `List   [`Float x; `Float y]);
-    ("rad" , `Float  g.g_rad)
-  ] in
-  g' :: acc
-  
-let player_to_json p_id p acc =
-  let x, y = p.p_pos in
-  let inv' = List.map (fun g_id -> `String g_id) p.p_inv in
-  let p'   = `Assoc [
-    ("id"  , `String p.p_id);
-    ("hp"  , `Int    p.p_hp);
-    ("dir" , `String (dir_to_json p.p_dir));
-    ("inv" , `List   inv');
-    ("pos" , `List   [`Float x; `Float y]);
-    ("rad" , `Float  p.p_rad)
-  ] in
-  p' :: acc
-
-let rock_to_json r_id r acc =
-  let x, y = r.r_pos in
-  let r'   = `Assoc [
-    ("pos" , `List  [`Float x; `Float y]);
-    ("rad" , `Float r.r_rad)
-  ] in
-  r' :: acc
+let map_hash h f =
+  let f' id e acc = e :: acc in
+  Hashtbl.fold f' h [] |> List.map f
 
 let to_json_string s =
   let x, y    = s.size in
   let ammo    = `List (List.map ammo_to_json s.ammo) in
   let bullets = `List (List.map bullet_to_json s.bullets) in
-  let guns    = `List (Hashtbl.fold gun_to_json s.guns []) in
-  let players = `List (Hashtbl.fold player_to_json s.players []) in
-  let rocks   = `List (Hashtbl.fold rock_to_json s.rocks []) in
+  let guns    = `List (map_hash s.guns gun_to_json) in
+  let players = `List (map_hash s.players player_to_json) in
+  let rocks   = `List (map_hash s.rocks rock_to_json) in
   let s' = `Assoc [
     ("size"    , `List [`Float x; `Float y]);
     ("rad"     , `Float s.s_rad);
@@ -137,3 +33,8 @@ let to_json_string s =
     ("players" , players);
     ("rocks"   , rocks);
   ] in s' |> Yojson.Basic.to_string
+
+let step = failwith "Unimplemented"
+let add_player = failwith "Unimplemented"
+let remove_player = failwith "Unimplemented"
+let to_list = failwith "Unimplemented"

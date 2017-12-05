@@ -1,15 +1,14 @@
-open State
+include Type
+let bins = 5000.00
+let scale = 1000000
 
 type cell = int * int
 
 type t = {
-  grid         : (cell, State.entity list) Hashtbl.t;
+  grid         : (cell, entity list) Hashtbl.t;
   prev         : (id, cell list) Hashtbl.t;
-  mutable coll : (State.entity * State.entity) list
+  mutable coll : (entity * entity) list
 }
-
-let bins = 5000.00
-let scale = 1000000
 
 (* Extracts unique IDs for each entity. *)
 let to_id = function
@@ -47,7 +46,7 @@ let to_cell (x, y) = (int_of_float (x /. bins), int_of_float (y /. bins))
 (* Compares two cells for equality. *)
 let cell_compare (x1, y1) (x2, y2) = (x1 * scale + y1) - (x2 * scale + y2)
 
-(* Calculates all possible cells that State.entity [e] can be hashed to. 
+(* Calculates all possible cells that entity [e] can be hashed to. 
  *
  * caveat: only checks 4/8 extremal points (i.e. the diagonals). 
  * Can fail on edge cases, but these are rare enough to make the tradeoff for speed.
@@ -58,7 +57,7 @@ let to_cells e =
   let l = List.map to_cell [(x-.r,y-.r); (x+.r,y-.r); (x-.r,y+.r); (x+.r,y+.r)] in
   List.sort_uniq cell_compare l
 
-(* Removes State.entity [e] from bin [b]. *)
+(* Removes entity [e] from bin [b]. *)
 let bin_remove b e =
   let rec bin_remove' acc = function
   | []     -> acc
@@ -67,7 +66,7 @@ let bin_remove b e =
     else bin_remove' (h :: acc) t in
   bin_remove' [] b
 
-(* Removes and then adds State.entity [e] from bin [b].
+(* Removes and then adds entity [e] from bin [b].
  *
  * Does not preserve order of bin [b]. *)
 let bin_replace b e = e :: (bin_remove b e)
@@ -82,11 +81,13 @@ let intersect e1 e2 =
   let r = (to_rad e1) +. (to_rad e2) in
   sqdist (to_pos e1) (to_pos e2) <= (r*.r)
 
-(* Checks for collisions between State.entity [e] and
+let create () = {grid = Hashtbl.create 16; prev = Hashtbl.create 16; coll = []}
+
+(* Checks for collisions between entity [e] and
  * all entities in [bin], and updates state to keep
  * track of new collisions.
  *
- * Precondition: State.entity [e] is not in [bin]. *)
+ * Precondition: entity [e] is not in [bin]. *)
 let rec check g e bin = match bin with
 | []      -> ()
 | e' :: t -> 
@@ -94,7 +95,7 @@ let rec check g e bin = match bin with
       g.coll <- ((e, e') :: g.coll) 
   else () in check g e t
 
-(* Inserts State.entity [e] associated with [cells] into the spatial hashmap. *)
+(* Inserts entity [e] associated with [cells] into the spatial hashmap. *)
 let rec insert g e cells = match cells with
 | []     -> ()
 | c :: t -> 
@@ -107,11 +108,11 @@ let rec insert g e cells = match cells with
     Hashtbl.add g.grid c [e] in
   insert g e t
 
-(* Adds State.entity [e] into the collision detection data structure. Keeps track
+(* Adds entity [e] into the collision detection data structure. Keeps track
  * of its position and all new collisions introduced by this object.
  *
  * requires: [add g e] is only called after [remove g e], or from [update g e].
- * Assumes that State.entity [e] is not in the data structure.
+ * Assumes that entity [e] is not in the data structure.
  * *)
 let rec add g e =
   let id = to_id e in
@@ -119,16 +120,7 @@ let rec add g e =
   let _ = Hashtbl.replace g.prev id cells in
   insert g e cells
 
-(* Creates a collision hitmap from all existing entities in state [s]. *)
-let create s =
-  let g = {grid = Hashtbl.create 16; prev = Hashtbl.create 16; coll = []} in
-  let l = s |> State.to_list in
-  let rec create' = function
-  | []     -> g
-  | h :: t -> add g h; create' t in
-  create' l
-
-(* Removes all collisions involving State.entity [e] from the
+(* Removes all collisions involving entity [e] from the
  * collision list. 
  *
  * Does not preserve order of list.
@@ -142,7 +134,7 @@ let uncheck g e =
     else uncheck' g e ((e1, e2) :: t) t in
   g.coll <- uncheck' g e [] g.coll
 
-(* Deletes State.entity [e] associated with [cells] from the spatial hashmap. *)
+(* Deletes entity [e] associated with [cells] from the spatial hashmap. *)
 let rec delete g e cells = match cells with
 | []     -> ()
 | c :: t ->
