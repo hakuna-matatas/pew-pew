@@ -18,6 +18,7 @@ let map_hash f h =
   let f' id e acc = e :: acc in
   Hashtbl.fold f' h [] |> List.map f
 
+(* Filters all key-value pairs in Hashtbl [h] through function [f]. *)
 let filter_hash f h = 
   let f' id e acc = if f e then e :: acc else acc in
   Hashtbl.fold f' h []
@@ -50,6 +51,8 @@ let to_list s =
 
 let contains l id = List.exists (fun id' -> id = id') l
 
+(* Player-ammo interaction. If player owns the correct
+ * gun type for the ammo drop, pick it up; otherwise collision occurs. *)
 let collision_pa s p_id a_id = 
   let p = Hashtbl.find s.players p_id in
   let a = Hashtbl.find s.ammo    a_id in
@@ -62,6 +65,8 @@ let collision_pa s p_id a_id =
     let _  = Collision.remove s.map (ammo_to_entity a) in false
   else true
 
+(* Player-bullet interaction. Player always
+ * takes damage, with friendly fire. *)
 let collision_pb s p_id b_id =
   let p  = Hashtbl.find s.players p_id in
   let b  = Hashtbl.find s.bullets b_id in
@@ -73,6 +78,8 @@ let collision_pb s p_id b_id =
   let _  = if hp' <= 0 then Collision.remove s.map (player_to_entity p)
   else () in false
 
+(* Player-gun interaction. If player doesn't own this
+ * type of gun, pick it up; otherwise collide. *)
 let collision_pg s p_id g_id =
   let p = Hashtbl.find s.players p_id in
   let g = Hashtbl.find s.guns    g_id in
@@ -82,28 +89,34 @@ let collision_pg s p_id g_id =
     let _  = Hashtbl.replace s.guns g.g_id g' in
     Collision.remove s.map (gun_to_entity g); false
 
+(* Deletes bullet with id [b_id] from state [s]. *)
 let delete_bullet s b_id = 
   let b = Hashtbl.find s.bullets b_id in
   let _ = Hashtbl.remove s.bullets b_id in
   let _ = Collision.remove s.map (bullet_to_entity b) in ()
 
+(* Bullet-ammo interaction. Destroy both. *)
 let collision_ba s b_id a_id = 
   let a = Hashtbl.find s.ammo    a_id in
   let _ = Hashtbl.remove s.ammo    a_id in
   let _ = Collision.remove s.map (ammo_to_entity a) in
   delete_bullet s b_id; false
 
+(* Bullet-bullet interaction. Destroy both. *)
 let collision_bb s b_id b_id' =
   delete_bullet s b_id; delete_bullet s b_id'; false
 
+(* Bullet-gun interaction. Destroy both. *)
 let collision_bg s b_id g_id =
   let g = Hashtbl.find s.guns    g_id in
   let _ = Hashtbl.remove s.guns    g_id in
   let _ = Collision.remove s.map (gun_to_entity g) in
   delete_bullet s b_id; false
 
+(* Bullet-rock interaction. Destroy bullet. *)
 let collision_br s b_id r_id = delete_bullet s b_id; false
 
+(* Imposes order on collision pairs for cleaner pattern matching. *)
 let order e e' = match e, e' with
 | Bullet _, Player _
 | Ammo   _, Player _
@@ -114,6 +127,11 @@ let order e e' = match e, e' with
 | Rock   _, Bullet _ -> (e', e)
 | _, _ -> (e, e')
 
+(* Handles collision between entities.
+ *
+ * returns true if movement was impeded (i.e. move was invalid)
+ * and false otherwise.
+ *)
 let collision s (e, e') = match order e e' with
 | Player (p_id, _, _), Ammo   (a_id, _, _)  -> collision_pa s p_id a_id
 | Player (p_id, _, _), Bullet (b_id, _, _)  -> collision_pb s p_id b_id
@@ -125,8 +143,6 @@ let collision s (e, e') = match order e e' with
 | Bullet (b_id, _, _), Gun    (g_id, _, _)  -> collision_bg s b_id g_id
 | Bullet (b_id, _, _), Rock   (r_id, _, _)  -> collision_br s b_id r_id
 | _, _ -> failwith "Error in map generation"  
-
-let step_bullet s b = List.map (fun b' -> b'.b_step b') b
 
 let step s = 
   let _ = map_hash (fun b -> Hashtbl.replace s.bullets b.b_id (b.b_step b)) s.bullets in
