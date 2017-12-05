@@ -5,6 +5,8 @@
 (* [state] is an abstract type representing the state of a game. *)
 type t
 
+val create: Type.id -> t
+
 val to_json_string: t -> string
 
 val to_list: t -> Type.entity list

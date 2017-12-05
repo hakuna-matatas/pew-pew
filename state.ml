@@ -43,6 +43,33 @@ let to_list s =
   let p = map_hash player_to_entity s.players in
   a @ b' @ r @ g @ p
 
-let step = failwith "Unimplemented"
+type collision =
+| Bounce
+| Hit of int
+| Ammo of id
+| Equip of id
+| Destroy of (id * id)
+
+let handle_player_ammo p_id a_id = failwith "Unimplemented"
+let handle_player_gun p_id g_id = failwith "Unimplemented"
+let handle_player_bullet p_id b_id = failwith "Unimplemented"
+
+let handle_collision e e' = match e, e' with
+| Ammo   (a_id, _, _), Player (p_id, _, _) 
+| Player (p_id, _, _), Ammo   (a_id, _, _) -> handle_player_ammo p_id a_id
+| Bullet (b_id, _, _), Player (p_id, _, _) 
+| Player (p_id, _, _), Bullet (b_id, _, _) -> handle_player_bullet p_id b_id
+| Gun    (g_id, _, _), Player (p_id, _, _)
+| Player (p_id, _, _), Gun    (g_id, _, _) -> handle_player_gun p_id g_id
+| _ -> failwith "Unimplemented"
+
+let step_bullet s b = List.map (fun b' -> b'.b_step b') b
+
+let step s = 
+  let _ = s.bullets <- List.map (fun b -> b.b_step b) s.bullets in
+  let _ = List.map bullet_to_entity s.bullets |> List.iter Collision.update in
+  let _ = s.time <- s.time + 1 in 
+  Collision.all s.map |> List.iter handle_collision
+
 let add_player = failwith "Unimplemented"
 let remove_player = failwith "Unimplemented"
