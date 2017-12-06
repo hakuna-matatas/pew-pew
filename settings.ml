@@ -37,6 +37,9 @@ let rock_radius   = 60.00
 (* Rate at which cooldown timer decreases *)
 let gun_cd_rate = 1
 
+(* Timeout value for bullets *)
+let bullet_timeout = 1000
+
 (* Rate at which ring of death radius decreases *)
 let constrict_rate = 0.05
 

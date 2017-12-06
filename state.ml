@@ -216,25 +216,29 @@ let sqdist (x1, y1) (x2, y2) =
 
 (* Stepping implementation must do the following: 
  *
- * 1) Update position of all bullets
- * 2) Handle collisions caused by bullet changes
- * 3) Update all gun cooldowns
- * 4) Increase time step 
- * 5) Decrease radius
- * 6) Check for out-of-bound players
- * 7) Remove dead players
- * 8) Spawn new ammo/guns
+ * 1) Remove timed-out bullets
+ * 2) Check for out-of-bound players
+ * 3) Remove dead players
+ * 4) Update bullet list by stepping bullets
+ * 5) Update position of all bullets
+ * 6) Handle collisions caused by bullet changes
+ * 7) Update all gun cooldowns
+ * 8) Increase time step 
+ * 9) Decrease radius
+ * 10) Spawn new ammo
+ * 11) Spawn new guns
  *
  *)
 let step s = 
+  let _ = iter_hash (fun b -> if b.b_time > bullet_timeout then H.remove s.bullets b.b_id; C.remove s.map (bullet_to_entity b)) in
+  let _ = iter_hash (fun p -> if outside s p then H.replace s.players p.p_id {p with p_hp = 0}) s.players in
+  let _ = iter_hash (fun p -> if p.p_hp <= 0 then destroy_player s p.p_id else ()) s.players in
   let _ = iter_hash (fun b -> H.replace s.bullets b.b_id (b.b_step b)) s.bullets in
   let _ = map_hash bullet_to_entity s.bullets |> List.iter (C.update s.map) in
   let _ = C.all s.map |> List.map (collision s) in
   let _ = iter_hash (fun g -> H.replace s.guns g.g_id {g with g_cd = max 0 (g.g_cd - gun_cd_rate)}) s.guns in
   let _ = s.time <- s.time + 1 in 
   let _ = s.s_rad <- s.s_rad -. constrict_rate in
-  let _ = iter_hash (fun p -> if outside s p then H.replace s.players p.p_id {p with p_hp = 0}) s.players in
-  let _ = iter_hash (fun p -> if p.p_hp <= 0 then destroy_player s p.p_id else ()) s.players in
   let _ = if (s.time mod ammo_spawn_cd) = 0 then repeat (create_ammo s) ammo_spawn_count else () in
   let _ = if (s.time mod gun_spawn_cd)  = 0 then repeat (create_gun s)  gun_spawn_count  else () in
   ()
