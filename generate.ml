@@ -9,11 +9,11 @@ let ammo n pos guns =
   let _ = n := !n + 1 in
   let gun = Random.int (List.length guns) in
   {
-    a_id  = !n;
-    a_gun = List.nth guns gun;
-    a_pos = pos;
-    a_rad = ammo_radius;
-    a_amt = ammo_count ()
+    a_id   = !n;
+    a_type = List.nth guns gun;
+    a_pos  = pos;
+    a_rad  = ammo_radius;
+    a_amt  = ammo_count ()
   }
 
 let bullet n p g = 

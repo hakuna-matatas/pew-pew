@@ -5,16 +5,16 @@ type id  = int
 type name = string
 
 type ammo = {
-  a_id  : id;
-  a_gun : name;
-  a_pos : pos;
-  a_rad : rad;
-  a_amt : int;
+  a_id   : id;
+  a_type : name;
+  a_pos  : pos;
+  a_rad  : rad;
+  a_amt  : int;
 }
 
 type bullet = {
   b_id   : id;
-  b_gun  : name;
+  b_type : name;
   b_own  : id;
   b_pos  : pos;
   b_rad  : rad;
@@ -66,7 +66,7 @@ in `String s
 let ammo_to_json a =
   let x, y = a.a_pos in
   `Assoc [
-    ("type"   , `String a.a_gun);
+    ("type"   , `String a.a_type);
     ("amount" , `Int    a.a_amt);
     ("pos"    , `List   [`Float x; `Float y]);
     ("rad"    , `Float  a.a_rad)
@@ -77,7 +77,7 @@ let ammo_to_entity a = Ammo (a.a_id, a.a_rad, a.a_pos)
 let bullet_to_json b =
   let x, y = b.b_pos in
   `Assoc [
-    ("type", `String b.b_gun);
+    ("type", `String b.b_type);
     ("rad" , `Float  b.b_rad);
     ("pos" , `List   [`Float x; `Float y])
   ]

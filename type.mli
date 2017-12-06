@@ -5,16 +5,16 @@ type id   = int
 type name = string
 
 type ammo = {
-  a_id  : id;
-  a_gun : name;
-  a_pos : pos;
-  a_rad : rad;
-  a_amt : int;
+  a_id   : id;
+  a_type : name;
+  a_pos  : pos;
+  a_rad  : rad;
+  a_amt  : int;
 }
 
 type bullet = {
   b_id   : id;
-  b_gun  : name;
+  b_type : name;
   b_own  : id;
   b_pos  : pos;
   b_rad  : rad;

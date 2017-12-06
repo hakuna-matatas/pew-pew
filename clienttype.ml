@@ -7,14 +7,14 @@ type id   = int
 type name = string
 
 type ammo = {
-  a_gun : id;
-  a_pos : pos;
-  a_rad : rad;
-  a_amt : int
+  a_type : name;
+  a_pos  : pos;
+  a_rad  : rad;
+  a_amt  : int
 }
 
 type bullet = {
-  b_gun  : id;
+  b_type : name;
   b_pos  : pos;
   b_rad  : rad
 }
@@ -45,13 +45,13 @@ type rock = {
 
 type state = {
   s_id    : id;
-  size    : float * flid;
-  radius  : flid;
-  ammo    : ammo lid;
-  bullets : bullet lid;
-  players : player lid;
-  guns    : gun lid;
-  rock    : rock list
+  size    : float * float;
+  radius  : float;
+  ammo    : ammo list;
+  bullets : bullet list;
+  players : player list;
+  guns    : gun list;
+  rocks   : rock list
 }
 
 let dir_of_json j =
@@ -66,22 +66,22 @@ let pos_of_json j field =
   | _            -> failwith "Malformed JSON position"
 
 let ammo_of_json j = {
-  a_gun = j |> member "type"   |> to_string;
-  a_rad = j |> member "rad"    |> to_float;
-  a_amt = j |> member "amount" |> to_int;
-  a_pos = pos_of_json j "pos";
+  a_type = j |> member "type"   |> to_string;
+  a_rad  = j |> member "rad"    |> to_float;
+  a_amt  = j |> member "amount" |> to_int;
+  a_pos  = pos_of_json j "pos";
 }
 
 let bullet_of_json j = {
-  b_gun = j |> member "type" |> to_string;
-  b_rad = j |> member "rad"  |> to_float;
-  b_pos = pos_of_json j "pos";
+  b_type = j |> member "type" |> to_int;
+  b_rad  = j |> member "rad"  |> to_float;
+  b_pos  = pos_of_json j "pos";
 }
 
 let gun_of_json j = {
   g_id   = j |> member "id"    |> to_int;
   g_type = j |> member "type"  |> to_string;
-  g_own  = j |> member "owner" |> to_string;
+  g_own  = j |> member "owner" |> to_int;
   g_rad  = j |> member "rad"   |> to_float;
   g_ammo = j |> member "ammo"  |> to_int;
   g_pos  = pos_of_json j "pos";
@@ -94,7 +94,7 @@ let player_of_json j = {
   p_rad  = j |> member "rad"  |> to_float;
   p_pos  = pos_of_json j "pos";
   p_dir  = dir_of_json (j |> member "dir");
-  p_inv  = List.map to_string (j |> member "inv" |> to_list)
+  p_inv  = List.map to_int (j |> member "inv" |> to_list)
 }
 
 let rock_of_json j = {
@@ -102,15 +102,15 @@ let rock_of_json j = {
   r_rad = j |> member "rad" |> to_float
 }
 
-let convert j f field = List.map (fun j' -> f j') (j |> member field)
+let convert j f field = List.map (fun j' -> f j') (j |> member field |> to_list)
 
-let state_of_json j = {
-  s_id      = member "id" j  |> to_int;
-  size    = pos_of_json "size";
-  radius  = member "rad" j |> to_float
-  ammo    = convert j ammo_of_json "ammo"
-  bullets = convert j bullet_of_json "bullets"
-  guns    = convert j gun_of_json "guns"
-  players = convert j player_of_json "players"
+let state_of_json j : state = {
+  s_id    = member "id" j  |> to_int;
+  size    = pos_of_json j "size";
+  radius  = member "rad" j |> to_float;
+  ammo    = convert j ammo_of_json "ammo";
+  bullets = convert j bullet_of_json "bullets";
+  guns    = convert j gun_of_json "guns";
+  players = convert j player_of_json "players";
   rocks   = convert j rock_of_json "rocks"
 }

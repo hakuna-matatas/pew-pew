@@ -159,7 +159,7 @@ let has_type s inv t = List.find_opt (fun g_id -> let g = H.find s.guns g_id in 
 let collision_pa s p_id a_id = 
   let p = H.find s.players p_id in
   let a = H.find s.ammo    a_id in
-  match has_type s p.p_inv a.a_gun with
+  match has_type s p.p_inv a.a_type with
   | None    -> true
   | Some g_id  -> let g = H.find s.guns g_id in
     let g' = {g with g_ammo = g.g_ammo + a.a_amt} in

@@ -18,12 +18,12 @@ let fire_pistol p =
   let rad = 5.0 in
   let speed = 0.5 in
   [{
-    b_id  = 0;
-    b_gun = "Pistol";
-    b_own = p.p_id;
-    b_pos = spawn p.p_pos (p.p_rad +. rad +. buffer) p.p_dir;
-    b_rad = rad;
-    b_dmg = 5;
+    b_id   = 0;
+    b_type = "Pistol";
+    b_own  = p.p_id;
+    b_pos  = spawn p.p_pos (p.p_rad +. rad +. buffer) p.p_dir;
+    b_rad  = rad;
+    b_dmg  = 5;
     b_time = 0;
     b_step = (fun b -> 
         {b with
