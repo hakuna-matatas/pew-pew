@@ -1,4 +1,4 @@
-include Type
+open Type
 
 let buffer = 5.0
 

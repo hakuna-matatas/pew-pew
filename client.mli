@@ -1,0 +1,62 @@
+(* Client representations of server-side games and entities.
+ *
+ * Contains helper functions for communicating via JSON.
+ *)
+
+type pos  = (float * float)
+type rad  = float
+type dir  = N | NE | E | SE | S | SW | W | NW
+type id   = int
+type name = string
+
+type ammo = {
+  a_type : name;
+  a_pos  : pos;
+  a_rad  : rad;
+  a_amt  : int
+}
+
+type bullet = {
+  b_type : name;
+  b_pos  : pos;
+  b_rad  : rad
+}
+
+type player = {
+  p_id   : id;
+  p_name : name;
+  p_hp   : int;
+  p_pos  : pos;
+  p_rad  : rad;
+  p_dir  : dir;
+  p_inv  : id list
+}
+
+type gun = {
+  g_id   : id;
+  g_own  : id;
+  g_pos  : pos;
+  g_rad  : rad;
+  g_type : name;
+  g_ammo : int
+}
+
+type rock = {
+  r_pos : pos;
+  r_rad : rad
+}
+
+type state = {
+  id    : id;
+  name    : name;
+  size    : float * float;
+  radius  : float;
+  ammo    : ammo list;
+  bullets : bullet list;
+  players : player list;
+  guns    : gun list;
+  rocks   : rock list
+}
+
+(* Converts the given JSON object to a state, according to the API. *)
+val state_of_json : Yojson.Basic.json -> state

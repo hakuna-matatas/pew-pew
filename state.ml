@@ -1,5 +1,5 @@
-include Type
-include Settings
+open Type
+open Settings
 
 module H = Hashtbl
 module C = Collision
@@ -9,6 +9,7 @@ type t = {
   mutable time  : int;
   size          : pos;
   s_id          : id;
+  s_name        : name;
   gen           : Generate.t;
   map           : C.t;
   ammo          : (id, ammo)   H.t;
@@ -47,6 +48,7 @@ let to_json_string s =
   let p = `List (map_hash player_to_json s.players) in
   Yojson.Basic.to_string (`Assoc [
     ("id"      , `Int s.s_id);
+    ("name"    , `String s.s_name);
     ("size"    , `List [`Float x; `Float y]);
     ("rad"     , `Float s.s_rad);
     ("ammo"    , a);
@@ -102,9 +104,10 @@ let create_player s id =
   let _ = C.update s.map e in
   H.add s.players p.p_id p
 
-let create id = 
+let create id name = 
   let s = {
     s_id    = id;     
+    s_name  = name;
     s_rad   = ring_radius;
     size    = map_width, map_height;
     time    = 0;
