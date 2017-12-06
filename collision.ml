@@ -1,5 +1,5 @@
-include Type
-include Settings
+open Type
+open Settings
 
 module H = Hashtbl
 
