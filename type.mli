@@ -69,7 +69,7 @@ val dir_to_json : dir -> Yojson.Basic.json
 (* Schema:
  *
  *  {
- *    "gun"    : "gun_id",
+ *    "gun"    : "gun_type", // e.g. "Bazooka"
  *    "amount" : 5,
  *    "pos"    : [0.56, 100.32],
  *    "rad"    : 6.56
@@ -81,7 +81,7 @@ val ammo_to_entity : ammo -> entity
 (* Schema:
  *
  *  {
- *    "gun" : "gun_id",
+ *    "gun" : "gun_type", // e.g. "Pistol"
  *    "rad" : 5.32,
  *    "pos" : [99.52, 33.23]
  *  }
@@ -92,9 +92,9 @@ val bullet_to_entity : bullet -> entity
 (* Schema:
  *
  *  {
- *    "gun"   : "gun_id",
+ *    "id"    : "gun_id",
  *    "owner" : "player_id",
- *    "ready" : true,
+ *    "type"  : "Pistol"
  *    "ammo"  : 5,
  *    "pos"   : [32.55, 99.22],
  *    "rad"   : 5.00
@@ -106,12 +106,13 @@ val gun_to_entity : gun -> entity
 (* Schema:
  *
  *  {
- *    "id"  : "player_id",
- *    "hp"  : 255,
- *    "dir" : "NW",
- *    "inv" : ["gun_id0", "gun_id1"],
- *    "pos" : [9999.99, 0.00],
- *    "rad" : 34.22
+ *    "id"   : "player_id",
+ *    "name" : "AGao"
+ *    "hp"   : 255,
+ *    "dir"  : "NW",
+ *    "inv"  : ["gun_id0", "gun_id1"],
+ *    "pos"  : [9999.99, 0.00],
+ *    "rad"  : 34.22
  *  }
  *)
 val player_to_json : player -> Yojson.Basic.json

@@ -87,7 +87,6 @@ let gun_to_json g =
   `Assoc [
     ("id"     , `String g.g_id);
     ("owner"  , `String g.g_own);
-    ("ready"  , `Bool   (g.g_cd = 0));
     ("type"   , `String g.g_type)
     ("ammo"   , `Int    g.g_ammo);
     ("pos"    , `List   [`Float x; `Float y]);

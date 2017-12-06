@@ -6,7 +6,6 @@ type dir = N | NE | E | SE | S | SW | W | NW
 type id  = string
 
 type ammo = {
-  a_id  : id;
   a_gun : id;
   a_pos : pos;
   a_rad : rad;
@@ -31,7 +30,6 @@ type player = {
 
 type gun = {
   g_id   : id;
-  g_cd   : int;
   g_own  : id;
   g_pos  : pos;
   g_rad  : rad;
@@ -66,7 +64,6 @@ let pos_of_json j field =
   | _            -> failwith "Malformed JSON position"
 
 let ammo_of_json j = {
-  a_id  = j |> member "id"     |> to_string;
   a_gun = j |> member "gun"    |> to_string;
   a_rad = j |> member "rad"    |> to_float;
   a_amt = j |> member "amount" |> to_int;
@@ -80,8 +77,8 @@ let bullet_of_json j = {
 }
 
 let gun_of_json j = {
+  g_id   = j |> member "id"    |> to_string
   g_type = j |> member "type"  |> to_string;
-  g_cd   = j |> member "cd"    |> to_int;
   g_own  = j |> member "owner" |> to_string;
   g_rad  = j |> member "rad"   |> to_float;
   g_ammo = j |> member "ammo"  |> to_int;
