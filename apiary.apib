@@ -8,20 +8,24 @@ and PlayerUnknown's Battlegrounds.
 
 # Group State
 
-## State [/lobby{?lobby_id}]
+## State [/game{?game_id,player_id}]
 ### Get current world state [GET]
 
-Returns the current state of the game running in lobby [lobby_id].
+Returns the current state of the game [game_id] from the perspective
+of player [player_id]. Returns the all entities in a server-defined radius
+around player.
 
 + Parameters
-    + lobby_id (required, string) - The ID of the requested lobby.
+    + game_id (required, string) - The ID of the requested game.
+    + player_id (required, string) - The ID of the requesting player.
 
 + Response 200 (application/json)
 
         [
             {
-                "size": [5000.00, 10000.00],
-                "radius": 4000.00,
+                "id"     : "My Awesome Game",
+                "size"   : [5000.00, 10000.00],
+                "radius" : 4000.00,
                 "ammo": [
                     {
                         "gun"   : "Bazooka",
@@ -137,77 +141,68 @@ Returns the current state of the game running in lobby [lobby_id].
 
 + Response 200
 
-        Ok. Position update accepted.
+        Ok.
     
 + Response 400
     
         Bad request. Excessive movement detected.
 
-## Shoot [/shoot{?player_id}]
-### Fire equipped weapon [POST]
+## Shoot [/shoot{?player_id,gun_id}]
+### Fire equipped weapon [GET]
 
 + Parameters
-    + player_id (required, int) - The ID of the current player
-    
-+ Request (application/json)
+    + player_id (required, string) - The ID of the current player
+    + gun_id (required, string) - The ID of the gun being fired
         
 + Response 200
 
-## Take [/take{?player_id}]
-### Pick up nearby items [POST]
+# Group Games
 
-+ Parameters
-    + player_id (required, int) - The ID of the current player
-    
-+ Request (application/json)
-
-+ Response 200
-
-# Group Lobbies
-
-## List [/lobbies{?player_id}]
-### Retrieve all existing lobbies [GET]
-
-+ Parameters
-    + player_id (required, int) - The ID of the current player
+## List [/games]
+### Retrieve all existing games [GET]
     
 + Response 200
 
         [ 
             {
-                "name": "lobby1",
-                "current_players": ["player1", "player2"],
+                "game_name" : "My Game",
+                "game_id"   : "12059",
+                "players"   : ["player_name", "player_name2"]
             },
             {
-                "name": "lobby2",
-                "current_players": ["player3", "player4"],
+                "game_name" : "Game 2",
+                "game_id"   : "129083",
+                "players"   : ["AGao", "TBaig"]
             }
         ]
             
 
-## Create [/create{?player_id}]
-### Make new lobby [POST]
-
-+ Parameters
-    + player_id (required, int) - The ID of the current player
+## Create [/create]
+### Make new game [POST]
 
 + Request (application/json)
 
         {
-            "name": "new-lobby",
+            "game_name"   : "new-game",
+            "player_name" : "AGao"
         }
-+ Response 201 (application/json)
-
-## Join [/join{?player_id}]
-### Enter existing lobby [POST]
-
-+ Parameters
-    + player_id (required, int) - The ID of the current playe
-
-+ Request (application/json)
+        
++ Response 200 (application/json)
 
         {
-            "name": "old-lobby",
+            "game_id"   : "My Game",
+            "player_id" : "12301"
         }
 
-+ Response 201 (application/json)
+## Join [/join{?game_id,player_name}]
+### Enter existing game [GET]
+
++ Parameters
+    + game_id (required, string) - The ID of the game to join
+    + player_name (required, string) - The name of the current player
+
++ Response 200 (application/json)
+
+        {
+            "player_id" : "5483945"
+        }
