@@ -28,7 +28,7 @@ let gun n pos =
   let _ = n := !n + 1 in
   let g = Armory.create () in
   { g with 
-    g_id = string_of_int !n;
+    g_id  = string_of_int !n;
     g_pos = pos }
 
 let rock n pos =
@@ -40,11 +40,14 @@ let rock n pos =
     r_rad = rad
   }
 
-let player n pos id = {
-    p_id = id; 
-    p_hp = player_hp;
-    p_pos = pos;
-    p_rad = player_radius;
-    p_dir = N;
-    p_inv = []
+let player n pos id = 
+  let _ = n := !n + 1 in 
+  {
+    p_id   = string_of_int !n; 
+    p_name = id;
+    p_hp   = player_hp;
+    p_pos  = pos;
+    p_rad  = player_radius;
+    p_dir  = N;
+    p_inv  = []
   }  

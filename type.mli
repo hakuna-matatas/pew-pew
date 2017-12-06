@@ -22,12 +22,13 @@ type bullet = {
 }
 
 type player = {
-  p_id  : id;
-  p_hp  : int;
-  p_pos : pos;
-  p_rad : rad;
-  p_dir : dir;
-  p_inv : id list;
+  p_id   : id;
+  p_name : id;
+  p_hp   : int;
+  p_pos  : pos;
+  p_rad  : rad;
+  p_dir  : dir;
+  p_inv  : id list;
 }
 
 type gun = {

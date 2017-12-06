@@ -142,19 +142,19 @@ let collision_pg s p_id g_id =
     Collision.remove s.map (gun_to_entity g); false
 
 (* Deletes bullet with id [b_id] from state [s]. *)
-let delete_bullet s b_id = 
+let destroy_bullet s b_id = 
   let b = Hashtbl.find s.bullets b_id in
   let _ = Hashtbl.remove s.bullets b_id in
   let _ = Collision.remove s.map (bullet_to_entity b) in ()
 
 (* Deletes ammo with id [a_id] from state [s]. *)
-let delete_ammo s a_id =
+let destroy_ammo s a_id =
   let a = Hashtbl.find s.ammo    a_id in
   let _ = Hashtbl.remove s.ammo  a_id in
   let _ = Collision.remove s.map (ammo_to_entity a) in ()
 
 (* Deletes gun with id [g_id] from state [s]. *)
-let delete_gun s g_id =
+let destroy_gun s g_id =
   let g = Hashtbl.find s.guns    g_id in
   let _ = Hashtbl.remove s.guns  g_id in
   let _ = Collision.remove s.map (gun_to_entity g) in
@@ -165,7 +165,7 @@ let delete_gun s g_id =
     Hashtbl.replace s.players p_id {p with p_inv = inv'}
 
 (* Deletes player with id [p_id] from state [s], along with all owned guns. *)
-let delete_player s p_id =
+let destroy_player s p_id =
   let p = Hashtbl.find s.players p_id in
   let _ = Hashtbl.remove s.players p_id in
   let _ = Collision.remove s.map (player_to_entity p) in
@@ -193,10 +193,10 @@ let collision s (e, e') = match order e e' with
 | Player (p_id, _, _), Gun    (g_id, _, _)  -> collision_pg s p_id g_id
 | Player (p_id, _, _), Rock   (r_id, _, _)  -> true
 | Player (p_id, _, _), Player (p_id', _, _) -> true
-| Bullet (b_id, _, _), Ammo   (a_id, _, _)  -> delete_bullet s b_id; delete_ammo s a_id; false
-| Bullet (b_id, _, _), Bullet (b_id', _, _) -> delete_bullet s b_id; delete_bullet s b_id'; false
-| Bullet (b_id, _, _), Gun    (g_id, _, _)  -> delete_bullet s b_id; delete_gun s g_id; false
-| Bullet (b_id, _, _), Rock   (r_id, _, _)  -> delete_bullet s b_id; false
+| Bullet (b_id, _, _), Ammo   (a_id, _, _)  -> destroy_bullet s b_id; destroy_ammo s a_id; false
+| Bullet (b_id, _, _), Bullet (b_id', _, _) -> destroy_bullet s b_id; destroy_bullet s b_id'; false
+| Bullet (b_id, _, _), Gun    (g_id, _, _)  -> destroy_bullet s b_id; destroy_gun s g_id; false
+| Bullet (b_id, _, _), Rock   (r_id, _, _)  -> destroy_bullet s b_id; false
 | _, _ -> failwith "Error in map generation"  
 
 let outside s p =

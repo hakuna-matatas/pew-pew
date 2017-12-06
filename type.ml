@@ -22,12 +22,13 @@ type bullet = {
 }
 
 type player = {
-  p_id  : id;
-  p_hp  : int;
-  p_pos : pos;
-  p_rad : rad;
-  p_dir : dir;
-  p_inv : id list;
+  p_id   : id;
+  p_name : id;
+  p_hp   : int;
+  p_pos  : pos;
+  p_rad  : rad;
+  p_dir  : dir;
+  p_inv  : id list;
 }
 
 type gun = {
@@ -98,7 +99,7 @@ let player_to_json p =
   let x, y = p.p_pos in
   let inv' = List.map (fun g_id -> `String g_id) p.p_inv in
   `Assoc [
-    ("id"  , `String p.p_id);
+    ("id"  , `String p.p_name);
     ("hp"  , `Int    p.p_hp);
     ("dir" , dir_to_json p.p_dir);
     ("inv" , `List   inv');
