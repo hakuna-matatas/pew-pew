@@ -44,7 +44,8 @@ type rock = {
 }
 
 type state = {
-  s_id    : id;
+  id    : id;
+  name    : name;
   size    : float * float;
   radius  : float;
   ammo    : ammo list;
@@ -105,7 +106,8 @@ let rock_of_json j = {
 let convert j f field = List.map (fun j' -> f j') (j |> member field |> to_list)
 
 let state_of_json j : state = {
-  s_id    = member "id" j  |> to_int;
+  id      = member "id" j  |> to_int;
+  name    = member "name" j |> to_string;
   size    = pos_of_json j "size";
   radius  = member "rad" j |> to_float;
   ammo    = convert j ammo_of_json "ammo";

@@ -6,7 +6,7 @@
 type t
 
 (* [create id] returns a game with id [id]. *)
-val create : Type.id -> t
+val create : Type.id -> Type.name -> t
 
 (* [fire st p_id g_id] attempts to fire player [p_id]'s gun [g_id]. *)
 val fire : t -> Type.id -> Type.id -> unit
