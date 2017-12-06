@@ -1,6 +1,5 @@
 include Type
-let bins = 5000.00
-let scale = 1000000
+include Settings
 
 type cell = int * int
 
@@ -40,10 +39,20 @@ let dynamic = function
 | Ammo   _ | Rock   _ | Gun _ -> false
 | Bullet _ | Player _         -> true
 
+(* Determines how many bins positions can be hashed to. Ideally want more bins, but
+ * we require that no object can cover an entire bin by itself.
+ * *)
+let bins = 
+  let r_max = max player_radius rock_radius |> max ammo_radius |> max gun_radius in
+  (map_width /. r_max /. 2.1,  map_height /. r_max /. 2.1)
+
 (* Hashes a float position to an int cell. *)
-let to_cell (x, y) = (int_of_float (x /. bins), int_of_float (y /. bins))
+let to_cell (x, y) = 
+  let x_bins, y_bins = bins in 
+  (int_of_float (x /. x_bins), int_of_float (y /. y_bins))
 
 (* Compares two cells for equality. *)
+let scale = int_of_float (map_width *. map_height)
 let cell_compare (x1, y1) (x2, y2) = (x1 * scale + y1) - (x2 * scale + y2)
 
 (* Calculates all possible cells that entity [e] can be hashed to. 

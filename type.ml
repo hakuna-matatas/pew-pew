@@ -3,14 +3,6 @@ type rad = float
 type dir = N | NE | E | SE | S | SW | W | NW
 type id  = string
 
-type scale = {
-  m_scale : float;
-  p_scale : float;
-  r_scale : float;
-  a_scale : float;
-  g_scale : float;
-}
-
 type ammo = {
   a_id  : id;
   a_gun : id;
@@ -62,14 +54,6 @@ type entity =
 | Ammo   of (id * rad * pos)
 | Gun    of (id * rad * pos)
 | Player of (id * rad * pos)
-
-let map_scale () = {
-  m_scale = 5000.00;
-  p_scale = 30.00;
-  r_scale = 100.00;
-  a_scale = 20.00;
-  g_scale = 20.00;
-}
 
 let dir_to_json d = let s = match d with
 | N -> "N" | NE -> "NE" | E -> "E" | SE -> "SE"

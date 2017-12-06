@@ -1,4 +1,5 @@
 include Type
+include Settings
 
 type t = {
   mutable s_rad : rad;
@@ -171,11 +172,10 @@ let create_rock s () =
   Hashtbl.add s.rocks r.r_id r
 
 let create id = 
-  let scale = Type.map_scale () in
   let s = {
     s_id    = id;     
-    s_rad   = scale.m_scale *. 1.20;
-    size    = (scale.m_scale, scale.m_scale);
+    s_rad   = ring_radius;
+    size    = map_width, map_height;
     time    = 0;
     gen     = Generate.create ();
     map     = Collision.create ();
@@ -185,9 +185,9 @@ let create id =
     players = Hashtbl.create 4;
     rocks   = Hashtbl.create 50;
   } in
-  repeat (create_rock s) 50;
-  repeat (create_gun  s) 10;
-  repeat (create_ammo s) 50;
+  repeat (create_rock s) initial_rocks;
+  repeat (create_gun  s) initial_guns;
+  repeat (create_ammo s) initial_ammo;
   s
 
 let outside s p =
@@ -208,24 +208,17 @@ let outside s p =
  * 7) Spawn new ammo/guns
  *
  *)
-let cd_rate = 1
-let constrict = 0.05
-let ammo_spawn = 200
-let ammo_count = 10
-let gun_spawn = 1000
-let gun_count = 10
 let step s = 
   let _ = map_hash (fun b -> Hashtbl.replace s.bullets b.b_id (b.b_step b)) s.bullets in
   let _ = map_hash bullet_to_entity s.bullets |> List.iter (Collision.update s.map) in
   let _ = Collision.all s.map |> List.map (collision s) in
-  let _ = map_hash (fun g -> Hashtbl.replace s.guns g.g_id {g with g_cd = if g.g_cd <= 0 then 0 else g.g_cd - 1}) s.guns in
+  let _ = map_hash (fun g -> Hashtbl.replace s.guns g.g_id {g with g_cd = max 0 (g.g_cd - gun_cd_rate)}) s.guns in
   let _ = s.time <- s.time + 1 in 
-  let _ = s.s_rad <- s.s_rad -. 0.05 in
+  let _ = s.s_rad <- s.s_rad -. constrict_rate in
   let _ = map_hash (fun p -> if outside s p then Hashtbl.replace s.players p.p_id {p with p_hp = 0}) s.players in
-  let _ = if (s.time mod ammo_spawn) = 0 then repeat (create_ammo s) ammo_count else () in
-  let _ = if (s.time mod gun_spawn) = 0 then repeat (create_gun s) gun_count  else () in
+  let _ = if (s.time mod ammo_spawn_cd) = 0 then repeat (create_ammo s) ammo_spawn_count else () in
+  let _ = if (s.time mod gun_spawn_cd)  = 0 then repeat (create_gun s)  gun_spawn_count  else () in
   ()
-
 
 let add_player = failwith "Unimplemented"
 let remove_player = failwith "Unimplemented"
