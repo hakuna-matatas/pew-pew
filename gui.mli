@@ -4,4 +4,4 @@
 
 
 (* This is the main method of the GUI and initializes the application. *)
-val start:  unit -> unit
+val main:  unit -> unit
