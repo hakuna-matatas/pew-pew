@@ -1,11 +1,13 @@
 include Type
 include Settings
 
+module H = Hashtbl
+
 type cell = int * int
 
 type t = {
-  grid         : (cell, entity list) Hashtbl.t;
-  prev         : (id, cell list) Hashtbl.t;
+  grid         : (cell, entity list) H.t;
+  prev         : (id, cell list) H.t;
   mutable coll : (entity * entity) list
 }
 
@@ -90,7 +92,7 @@ let intersect e1 e2 =
   let r = (to_rad e1) +. (to_rad e2) in
   sqdist (to_pos e1) (to_pos e2) <= (r*.r)
 
-let create () = {grid = Hashtbl.create 16; prev = Hashtbl.create 16; coll = []}
+let create () = {grid = H.create 16; prev = H.create 16; coll = []}
 
 (* Checks for collisions between entity [e] and
  * all entities in [bin], and updates state to keep
@@ -108,13 +110,13 @@ let rec check g e bin = match bin with
 let rec insert g e cells = match cells with
 | []     -> ()
 | c :: t -> 
-  let _ = if Hashtbl.mem g.grid c then
-    let b  = Hashtbl.find g.grid c in
+  let _ = if H.mem g.grid c then
+    let b  = H.find g.grid c in
     let _  = if dynamic e then check g e b else () in
     let b' = bin_replace b e in
-    Hashtbl.replace g.grid c b'
+    H.replace g.grid c b'
   else
-    Hashtbl.add g.grid c [e] in
+    H.add g.grid c [e] in
   insert g e t
 
 (* Adds entity [e] into the collision detection data structure. Keeps track
@@ -126,7 +128,7 @@ let rec insert g e cells = match cells with
 let rec add g e =
   let id = to_id e in
   let cells = to_cells e in
-  let _ = Hashtbl.replace g.prev id cells in
+  let _ = H.replace g.prev id cells in
   insert g e cells
 
 (* Removes all collisions involving entity [e] from the
@@ -147,18 +149,18 @@ let uncheck g e =
 let rec delete g e cells = match cells with
 | []     -> ()
 | c :: t ->
-  let _ = if Hashtbl.mem g.grid c then
-    let b  = Hashtbl.find g.grid c in
+  let _ = if H.mem g.grid c then
+    let b  = H.find g.grid c in
     let _ = uncheck g e in
     let b' = bin_remove b e in
-    if b' = [] then Hashtbl.remove g.grid c
-    else Hashtbl.replace g.grid c b'
+    if b' = [] then H.remove g.grid c
+    else H.replace g.grid c b'
   else () in delete g e t
 
 let remove g e = 
   let id = to_id e in
-  if not (Hashtbl.mem g.prev id) then () else
-  let cells  = Hashtbl.find g.prev id in
+  if not (H.mem g.prev id) then () else
+  let cells  = H.find g.prev id in
   delete g e cells
 
 let update g e = remove g e; add g e
@@ -166,7 +168,7 @@ let update g e = remove g e; add g e
 let free g (w, h) =
   let rec free' () = 
     let pos = (Random.float w, Random.float h) in
-    if Hashtbl.mem g.grid (to_cell pos) then free' () else pos in
+    if H.mem g.grid (to_cell pos) then free' () else pos in
   free' ()
 
 let all g = g.coll
