@@ -15,18 +15,18 @@ type t = {
   players       : (id, player) Hashtbl.t;
 }
 
-(* Maps [f] over all key-value pairs in Hashtbl [h]. *)
-let map_hash f h =
+(* Converts Hashtbl to list of values. *)
+let to_values h = 
   let f' id e acc = e :: acc in
-  Hashtbl.fold f' h [] |> List.map f
-
-(* Filters all key-value pairs in Hashtbl [h] through function [f]. *)
-let filter_hash f h = 
-  let f' id e acc = if f e then e :: acc else acc in
   Hashtbl.fold f' h []
 
+(* Equivalent to their list counterparts *)
+let iter_hash f h = to_values h |> List.iter f
+let map_hash f h = to_values h |> List.map f
+let filter_hash f h = to_values h |> List.filter f
+
 let to_json_string s =
-  let x, y    = s.size in
+  let x, y = s.size in
   let a = `List (map_hash ammo_to_json s.ammo) in
   let b = `List (map_hash bullet_to_json s.bullets) in
   let r = `List (map_hash rock_to_json s.rocks) in
@@ -219,17 +219,19 @@ let sqdist (x1, y1) (x2, y2) =
  * 4) Increase time step 
  * 5) Decrease radius
  * 6) Check for out-of-bound players
- * 7) Spawn new ammo/guns
+ * 7) Remove dead players
+ * 8) Spawn new ammo/guns
  *
  *)
 let step s = 
-  let _ = map_hash (fun b -> Hashtbl.replace s.bullets b.b_id (b.b_step b)) s.bullets in
+  let _ = iter_hash (fun b -> Hashtbl.replace s.bullets b.b_id (b.b_step b)) s.bullets in
   let _ = map_hash bullet_to_entity s.bullets |> List.iter (Collision.update s.map) in
   let _ = Collision.all s.map |> List.map (collision s) in
-  let _ = map_hash (fun g -> Hashtbl.replace s.guns g.g_id {g with g_cd = max 0 (g.g_cd - gun_cd_rate)}) s.guns in
+  let _ = iter_hash (fun g -> Hashtbl.replace s.guns g.g_id {g with g_cd = max 0 (g.g_cd - gun_cd_rate)}) s.guns in
   let _ = s.time <- s.time + 1 in 
   let _ = s.s_rad <- s.s_rad -. constrict_rate in
-  let _ = map_hash (fun p -> if outside s p then Hashtbl.replace s.players p.p_id {p with p_hp = 0}) s.players in
+  let _ = iter_hash (fun p -> if outside s p then Hashtbl.replace s.players p.p_id {p with p_hp = 0}) s.players in
+  let _ = iter_hash (fun p -> if p.p_hp <= 0 then destroy_player s p.p_id else ()) s.players in
   let _ = if (s.time mod ammo_spawn_cd) = 0 then repeat (create_ammo s) ammo_spawn_count else () in
   let _ = if (s.time mod gun_spawn_cd)  = 0 then repeat (create_gun s)  gun_spawn_count  else () in
   ()
