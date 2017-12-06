@@ -95,16 +95,16 @@ let intersect e1 e2 =
 let create () = {grid = H.create 16; prev = H.create 16; coll = []}
 
 (* Checks for collisions between entity [e] and
- * all entities in [bin], and updates state to keep
- * track of new collisions.
+ * all entities in [bin], and returns a list of all new collisions.
  *
  * Precondition: entity [e] is not in [bin]. *)
-let rec check g e bin = match bin with
-| []      -> ()
-| e' :: t -> 
-  let _ = if intersect e e' then 
-      g.coll <- ((e, e') :: g.coll) 
-  else () in check g e t
+let check e bin = 
+  let rec check' acc = function
+  | []      -> acc
+  | e' :: t -> if intersect e e' 
+    then check' ((e, e') :: acc) t
+    else check' acc t in
+  check' [] bin
 
 (* Inserts entity [e] associated with [cells] into the spatial hashmap. *)
 let rec insert g e cells = match cells with
@@ -112,7 +112,7 @@ let rec insert g e cells = match cells with
 | c :: t -> 
   let _ = if H.mem g.grid c then
     let b  = H.find g.grid c in
-    let _  = if dynamic e then check g e b else () in
+    let _  = if dynamic e then g.coll <- ((check e b) @ g.coll) else () in
     let b' = bin_replace b e in
     H.replace g.grid c b'
   else
@@ -162,6 +162,14 @@ let remove g e =
   if not (H.mem g.prev id) then () else
   let cells  = H.find g.prev id in
   delete g e cells
+
+let test g e = e
+  |> to_cells
+  |> List.map (fun c -> Hashtbl.find_opt g.grid c)
+  |> List.filter (fun b -> match b with None -> false | _ -> true)
+  |> List.map (fun b -> match b with Some b' -> b' | _ -> failwith "Unreachable")
+  |> List.map (fun b -> check e b)
+  |> List.flatten
 
 let update g e = remove g e; add g e
 

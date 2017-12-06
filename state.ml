@@ -18,15 +18,25 @@ type t = {
   players       : (id, player) H.t;
 }
 
-(* Converts Hashtbl to list of values. *)
+(* --------------------------------- *)
+(*                                   *)
+(*     Hashtbl Utility Functions     *)
+(*                                   *)
+(* --------------------------------- *)
+
 let to_values h = 
   let f' id e acc = e :: acc in
   H.fold f' h []
 
-(* Equivalent to their list counterparts *)
 let iter_hash f h = to_values h |> List.iter f
 let map_hash f h = to_values h |> List.map f
 let filter_hash f h = to_values h |> List.filter f
+
+(* --------------------------------- *)
+(*                                   *)
+(*          Type Conversions         *)
+(*                                   *)
+(* --------------------------------- *)
 
 let to_json_string s =
   let x, y = s.size in
@@ -53,6 +63,12 @@ let to_list s =
   let g  = map_hash gun_to_entity s.guns in
   let p  = map_hash player_to_entity s.players in
   a @ b' @ r @ g @ p
+
+(* --------------------------------- *)
+(*                                   *)
+(*  Entity Creation and Destruction  *)
+(*                                   *)
+(* --------------------------------- *)
 
 let rec repeat f n = 
   if n <= 0 then () 
@@ -104,10 +120,42 @@ let create id =
   repeat (create_ammo s) initial_ammo;
   s
 
+let destroy_bullet s b_id = 
+  let b = H.find s.bullets b_id in
+  let _ = H.remove s.bullets b_id in
+  let _ = C.remove s.map (bullet_to_entity b) in ()
+
+let destroy_ammo s a_id =
+  let a = H.find s.ammo    a_id in
+  let _ = H.remove s.ammo  a_id in
+  let _ = C.remove s.map (ammo_to_entity a) in ()
+
+let destroy_gun s g_id =
+  let g = H.find s.guns    g_id in
+  let _ = H.remove s.guns  g_id in
+  let _ = C.remove s.map (gun_to_entity g) in
+  match g.g_own with
+  | ""   -> ()
+  | p_id -> let p = H.find s.players p_id in
+    let inv' = List.filter (fun id -> id <> g.g_id) p.p_inv in
+    H.replace s.players p_id {p with p_inv = inv'}
+
+let destroy_player s p_id =
+  let p = H.find s.players p_id in
+  let _ = H.remove s.players p_id in
+  let _ = C.remove s.map (player_to_entity p) in
+  let _ = List.iter (fun g_id -> H.remove s.guns g_id) p.p_inv in ()
+
+(* --------------------------------- *)
+(*                                   *)
+(*        Collision Handling         *)
+(*                                   *)
+(* --------------------------------- *)
+
 let has_type s inv t = List.find_opt (fun g_id -> let g = H.find s.guns g_id in g.g_type = t) inv
 
-(* Player-ammo interaction. If player owns the correct
- * gun type for the ammo drop, pick it up; otherwise collision occurs. *)
+(* Player-ammo. If player owns the correct
+ * gun type for the ammo drop, pick it up; otherwise collision. *)
 let collision_pa s p_id a_id = 
   let p = H.find s.players p_id in
   let a = H.find s.ammo    a_id in
@@ -119,8 +167,7 @@ let collision_pa s p_id a_id =
     let _  = H.remove   s.ammo a_id       in
     let _  = C.remove s.map (ammo_to_entity a) in false
 
-(* Player-bullet interaction. Player always
- * takes damage, with friendly fire. *)
+(* Player-bullet. Player always takes damage, with friendly fire. *)
 let collision_pb s p_id b_id =
   let p  = H.find s.players p_id in
   let b  = H.find s.bullets b_id in
@@ -132,7 +179,7 @@ let collision_pb s p_id b_id =
   let _  = if hp' <= 0 then C.remove s.map (player_to_entity p)
   else () in false
 
-(* Player-gun interaction. If player doesn't own this
+(* Player-gun. If player doesn't own this
  * type of gun, pick it up; otherwise collide. *)
 let collision_pg s p_id g_id =
   let p = H.find s.players p_id in
@@ -143,36 +190,6 @@ let collision_pg s p_id g_id =
     let g' = {g with g_own = p_id} in
     let _  = H.replace s.guns g.g_id g' in
     C.remove s.map (gun_to_entity g); false
-
-(* Deletes bullet with id [b_id] from state [s]. *)
-let destroy_bullet s b_id = 
-  let b = H.find s.bullets b_id in
-  let _ = H.remove s.bullets b_id in
-  let _ = C.remove s.map (bullet_to_entity b) in ()
-
-(* Deletes ammo with id [a_id] from state [s]. *)
-let destroy_ammo s a_id =
-  let a = H.find s.ammo    a_id in
-  let _ = H.remove s.ammo  a_id in
-  let _ = C.remove s.map (ammo_to_entity a) in ()
-
-(* Deletes gun with id [g_id] from state [s]. *)
-let destroy_gun s g_id =
-  let g = H.find s.guns    g_id in
-  let _ = H.remove s.guns  g_id in
-  let _ = C.remove s.map (gun_to_entity g) in
-  match g.g_own with
-  | ""   -> ()
-  | p_id -> let p = H.find s.players p_id in
-    let inv' = List.filter (fun id -> id <> g.g_id) p.p_inv in
-    H.replace s.players p_id {p with p_inv = inv'}
-
-(* Deletes player with id [p_id] from state [s], along with all owned guns. *)
-let destroy_player s p_id =
-  let p = H.find s.players p_id in
-  let _ = H.remove s.players p_id in
-  let _ = C.remove s.map (player_to_entity p) in
-  let _ = List.iter (fun g_id -> H.remove s.guns g_id) p.p_inv in ()
 
 (* Imposes order on collision pairs for cleaner pattern matching. *)
 let order e e' = match e, e' with
@@ -185,9 +202,9 @@ let order e e' = match e, e' with
 | Rock   _, Bullet _ -> (e', e)
 | _, _ -> (e, e')
 
-(* Handles collision between entities.
+(* Main collision function.
  *
- * returns true if movement was impeded (i.e. move was invalid)
+ * Returns true if movement was impeded (i.e. move was invalid)
  * and false otherwise.
  *)
 let collision s (e, e') = match order e e' with
@@ -202,6 +219,29 @@ let collision s (e, e') = match order e e' with
 | Bullet (b_id, _, _), Rock   (r_id, _, _)  -> destroy_bullet s b_id; false
 | _, _ -> failwith "Error in map generation"  
 
+(* --------------------------------- *)
+(*                                   *)
+(*           World Stepping          *)
+(*                                   *)
+(* --------------------------------- *)
+
+(* Stepping implementation must do the following: 
+ *
+ *  1) Remove timed-out bullets
+ *  2) Remove out-of-bounds and dead players
+ *  3) Update bullet list and positions by stepping bullets
+ *  4) Handle all collisions
+ *  5) Update all gun cooldowns
+ *  6) Increase time step and decrease radius
+ *  7) Spawn new ammo
+ *  8) Spawn new guns 
+ *)
+
+let remove_old_bullets s = iter_hash (fun b ->
+    if b.b_time > bullet_timeout then 
+      destroy_bullet s b.b_id else ()
+  ) s.bullets
+
 let outside s p =
   let x1, y1 = p.p_pos in
   let x2, y2 = s.size in
@@ -209,39 +249,52 @@ let outside s p =
   let y = y2 -. (y1 /. 2.0) in
   s.s_rad *. s.s_rad < (x*.x +. y*.y)
 
-let sqdist (x1, y1) (x2, y2) =
-  let x = x2 -. x1 in
-  let y = y2 -. y1 in
-  (x*.x) +. (y*.y)
+let remove_dead_players s = iter_hash (fun p ->
+    if p.p_hp <= 0 || outside s p then 
+      destroy_player s p.p_id else ()
+  ) s.players
 
-(* Stepping implementation must do the following: 
- *
- * 1) Remove timed-out bullets
- * 2) Check for out-of-bound players
- * 3) Remove dead players
- * 4) Update bullet list by stepping bullets
- * 5) Update position of all bullets
- * 6) Handle collisions caused by bullet changes
- * 7) Update all gun cooldowns
- * 8) Increase time step 
- * 9) Decrease radius
- * 10) Spawn new ammo
- * 11) Spawn new guns
- *
- *)
+let update_bullets s = iter_hash (fun b ->
+    let b' = b.b_step b in
+    H.replace s.bullets b.b_id b';
+    C.update s.map (bullet_to_entity b')
+  ) s.bullets
+
+let handle_collisions s = 
+  let _ = List.map (collision s) (C.all s.map) in ()
+
+let update_guns s = iter_hash (fun g ->
+    H.replace s.guns g.g_id 
+      {g with g_cd = max 0 (g.g_cd - gun_cd_rate)}
+  ) s.guns
+
+let update_state s =
+  s.time  <- s.time + 1;
+  s.s_rad <- s.s_rad -. constrict_rate
+
+let spawn_ammo s = if (s.time mod ammo_spawn_cd = 0) then
+    repeat (create_ammo s) ammo_spawn_count 
+  else ()
+
+let spawn_guns s = if (s.time mod gun_spawn_cd = 0) then
+    repeat (create_gun s) gun_spawn_count
+  else ()
+
 let step s = 
-  let _ = iter_hash (fun b -> if b.b_time > bullet_timeout then H.remove s.bullets b.b_id; C.remove s.map (bullet_to_entity b)) in
-  let _ = iter_hash (fun p -> if outside s p then H.replace s.players p.p_id {p with p_hp = 0}) s.players in
-  let _ = iter_hash (fun p -> if p.p_hp <= 0 then destroy_player s p.p_id else ()) s.players in
-  let _ = iter_hash (fun b -> H.replace s.bullets b.b_id (b.b_step b)) s.bullets in
-  let _ = map_hash bullet_to_entity s.bullets |> List.iter (C.update s.map) in
-  let _ = C.all s.map |> List.map (collision s) in
-  let _ = iter_hash (fun g -> H.replace s.guns g.g_id {g with g_cd = max 0 (g.g_cd - gun_cd_rate)}) s.guns in
-  let _ = s.time <- s.time + 1 in 
-  let _ = s.s_rad <- s.s_rad -. constrict_rate in
-  let _ = if (s.time mod ammo_spawn_cd) = 0 then repeat (create_ammo s) ammo_spawn_count else () in
-  let _ = if (s.time mod gun_spawn_cd)  = 0 then repeat (create_gun s)  gun_spawn_count  else () in
-  ()
+  remove_old_bullets s;
+  remove_dead_players s;
+  update_bullets s;
+  handle_collisions s;
+  update_guns s;
+  update_state s;
+  spawn_ammo s;
+  spawn_guns s
+
+(* --------------------------------- *)
+(*                                   *)
+(*        Player Interaction         *)
+(*                                   *)
+(* --------------------------------- *)
 
 let fire s p_id g_id =
   let p = H.find s.players p_id in
@@ -255,10 +308,20 @@ let fire s p_id g_id =
       C.update s.map (bullet_to_entity b)
     ) bullets
 
+let sqdist (x1, y1) (x2, y2) =
+  let x = x2 -. x1 in
+  let y = y2 -. y1 in
+  (x*.x) +. (y*.y)
+
 let move s p_id pos =
   let p = H.find s.players p_id in
   if p.p_hp <= 0 then destroy_player s p.p_id else
   if sqdist p.p_pos pos > max_sq_distance then () else
   let p' = {p with p_pos = pos} in
+  let collided = player_to_entity p'
+    |> C.test s.map
+    |> List.map (collision s)
+    |> List.exists (fun b -> b = true) in
+  if collided then () else
   let _ = C.update s.map (player_to_entity p') in
   H.replace s.players p_id p'
