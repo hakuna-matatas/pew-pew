@@ -85,12 +85,13 @@ let bullet_to_entity b = Bullet (b.b_id, b.b_rad, b.b_pos)
 let gun_to_json g =
   let x, y = g.g_pos in
   `Assoc [
-    ("id"     , `String g.g_type);
+    ("id"     , `String g.g_id);
     ("owner"  , `String g.g_own);
     ("ready"  , `Bool   (g.g_cd = 0));
+    ("type"   , `String g.g_type)
     ("ammo"   , `Int    g.g_ammo);
     ("pos"    , `List   [`Float x; `Float y]);
-    ("rad" , `Float  g.g_rad)
+    ("rad"    , `Float  g.g_rad)
   ]
 
 let gun_to_entity g = Gun (g.g_id, g.g_rad, g.g_pos)
@@ -99,12 +100,13 @@ let player_to_json p =
   let x, y = p.p_pos in
   let inv' = List.map (fun g_id -> `String g_id) p.p_inv in
   `Assoc [
-    ("id"  , `String p.p_name);
-    ("hp"  , `Int    p.p_hp);
-    ("dir" , dir_to_json p.p_dir);
-    ("inv" , `List   inv');
-    ("pos" , `List   [`Float x; `Float y]);
-    ("rad" , `Float  p.p_rad)
+    ("id"   , `String p.p_id);
+    ("name" , `String p.p_name)
+    ("hp"   , `Int    p.p_hp);
+    ("dir"  , dir_to_json p.p_dir);
+    ("inv"  , `List   inv');
+    ("pos"  , `List   [`Float x; `Float y]);
+    ("rad"  , `Float  p.p_rad)
   ]
 
 let player_to_entity p = Player (p.p_id, p.p_rad, p.p_pos)
