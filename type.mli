@@ -1,11 +1,12 @@
-type pos = (float * float)
-type rad = float
-type dir = N | NE | E | SE | S | SW | W | NW
-type id  = string
+type pos  = (float * float)
+type rad  = float
+type dir  = N | NE | E | SE | S | SW | W | NW
+type id   = int
+type name = string
 
 type ammo = {
   a_id  : id;
-  a_gun : id;
+  a_gun : name;
   a_pos : pos;
   a_rad : rad;
   a_amt : int;
@@ -13,7 +14,7 @@ type ammo = {
 
 type bullet = {
   b_id   : id;
-  b_gun  : id;
+  b_gun  : name;
   b_own  : id;
   b_pos  : pos;
   b_rad  : rad;
@@ -24,7 +25,7 @@ type bullet = {
 
 type player = {
   p_id   : id;
-  p_name : id;
+  p_name : name;
   p_hp   : int;
   p_pos  : pos;
   p_rad  : rad;
@@ -38,7 +39,7 @@ type gun = {
   g_own  : id;
   g_pos  : pos;
   g_rad  : rad;
-  g_type : id;
+  g_type : name;
   g_rate : int;
   g_ammo : int;
   g_fire : player -> bullet list;

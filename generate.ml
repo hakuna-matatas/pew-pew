@@ -9,7 +9,7 @@ let ammo n pos guns =
   let _ = n := !n + 1 in
   let gun = Random.int (List.length guns) in
   {
-    a_id  = string_of_int !n;
+    a_id  = !n;
     a_gun = List.nth guns gun;
     a_pos = pos;
     a_rad = ammo_radius;
@@ -21,21 +21,25 @@ let bullet n p g =
   | []     -> acc
   | b :: t -> 
     let _ = n := !n + 1 in 
-    bullet' ({b with b_id = string_of_int !n} :: acc) t in
+    bullet' ({b with b_id = !n} :: acc) t in
   bullet' [] (g.g_fire p)
 
 let gun n pos =
   let _ = n := !n + 1 in
   let g = Armory.create () in
   { g with 
-    g_id  = string_of_int !n;
-    g_pos = pos }
+    g_id  = !n;
+    g_own = (-1);
+    g_pos = pos;
+    g_fire = fun p -> g.g_fire p |> List.map 
+            (fun b -> {b with b_id = let _ = n := !n + 1 in !n})
+  }
 
 let rock n pos =
   let _ = n := !n + 1 in
   let rad = player_radius +. (Random.float (rock_radius -. player_radius)) in
   {
-    r_id  = string_of_int !n;
+    r_id  = !n;
     r_pos = pos;
     r_rad = rad
   }
@@ -43,7 +47,7 @@ let rock n pos =
 let player n pos id = 
   let _ = n := !n + 1 in 
   {
-    p_id   = string_of_int !n; 
+    p_id   = !n; 
     p_name = id;
     p_hp   = player_hp;
     p_pos  = pos;

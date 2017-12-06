@@ -1,11 +1,12 @@
 type pos = (float * float)
 type rad = float
 type dir = N | NE | E | SE | S | SW | W | NW
-type id  = string
+type id  = int
+type name = string
 
 type ammo = {
   a_id  : id;
-  a_gun : id;
+  a_gun : name;
   a_pos : pos;
   a_rad : rad;
   a_amt : int;
@@ -13,7 +14,7 @@ type ammo = {
 
 type bullet = {
   b_id   : id;
-  b_gun  : id;
+  b_gun  : name;
   b_own  : id;
   b_pos  : pos;
   b_rad  : rad;
@@ -24,7 +25,7 @@ type bullet = {
 
 type player = {
   p_id   : id;
-  p_name : id;
+  p_name : name;
   p_hp   : int;
   p_pos  : pos;
   p_rad  : rad;
@@ -38,7 +39,7 @@ type gun = {
   g_own  : id;
   g_pos  : pos;
   g_rad  : rad;
-  g_type : id;
+  g_type : name;
   g_rate : int;
   g_ammo : int;
   g_fire : player -> bullet list;
@@ -65,7 +66,7 @@ in `String s
 let ammo_to_json a =
   let x, y = a.a_pos in
   `Assoc [
-    ("gun"    , `String a.a_gun);
+    ("type"   , `String a.a_gun);
     ("amount" , `Int    a.a_amt);
     ("pos"    , `List   [`Float x; `Float y]);
     ("rad"    , `Float  a.a_rad)
@@ -76,7 +77,7 @@ let ammo_to_entity a = Ammo (a.a_id, a.a_rad, a.a_pos)
 let bullet_to_json b =
   let x, y = b.b_pos in
   `Assoc [
-    ("gun" , `String b.b_gun);
+    ("type", `String b.b_gun);
     ("rad" , `Float  b.b_rad);
     ("pos" , `List   [`Float x; `Float y])
   ]
@@ -86,8 +87,8 @@ let bullet_to_entity b = Bullet (b.b_id, b.b_rad, b.b_pos)
 let gun_to_json g =
   let x, y = g.g_pos in
   `Assoc [
-    ("id"     , `String g.g_id);
-    ("owner"  , `String g.g_own);
+    ("id"     , `Int    g.g_id);
+    ("owner"  , `Int    g.g_own);
     ("type"   , `String g.g_type);
     ("ammo"   , `Int    g.g_ammo);
     ("pos"    , `List   [`Float x; `Float y]);
@@ -98,9 +99,9 @@ let gun_to_entity g = Gun (g.g_id, g.g_rad, g.g_pos)
 
 let player_to_json p =
   let x, y = p.p_pos in
-  let inv' = List.map (fun g_id -> `String g_id) p.p_inv in
+  let inv' = List.map (fun g_id -> `Int g_id) p.p_inv in
   `Assoc [
-    ("id"   , `String p.p_id);
+    ("id"   , `Int    p.p_id);
     ("name" , `String p.p_name);
     ("hp"   , `Int    p.p_hp);
     ("dir"  , dir_to_json p.p_dir);

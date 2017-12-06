@@ -13,6 +13,9 @@ let ammo_count () = 10 + (Random.int 10)
 (* HP per player *)
 let player_hp = 100
 
+(* Default gun owner *)
+let no_owner = (-1)
+
 (*                *
   * Entity Scaling *
   *                *)

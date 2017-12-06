@@ -20,15 +20,11 @@ val to_json_string: t -> string
 (* [to_list st] is the list of all entities in [st]. *)
 val to_list: t -> Type.entity list
 
-(* [create_player id st] adds the player with username [id] to the game
+(* [create_player name st] adds the player with username [name] to the game, and
+ * returns a unique ID. *)
+val create_player: t -> Type.name -> unit
 
-	requires: [id] is a unique string representing the name of the
-						 player to be added *)
-val create_player: t -> Type.id -> unit
-
-(* [destroy_player id st] removes the player with username [id] from the game 
-	 
-	 requires: [id] is the username of a player in the game. *) 
+(* [destroy_player id st] removes the player with unique ID [id] from the game. *)
 val destroy_player: t -> Type.id -> unit
 
 (* [step st] increments the game state by one tick. *)

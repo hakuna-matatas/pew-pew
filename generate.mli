@@ -5,7 +5,7 @@ type t
 
 val create : unit -> t
 
-val ammo : t -> Type.pos -> Type.id list -> Type.ammo
+val ammo : t -> Type.pos -> Type.name list -> Type.ammo
 
 val bullet : t -> Type.player -> Type.gun -> Type.bullet list
 
@@ -15,4 +15,4 @@ val rock : t -> Type.pos -> Type.rock
 
 (* Creates a player with the specified ID. *)
 
-val player : t -> Type.pos -> Type.id -> Type.player
+val player : t -> Type.pos -> Type.name -> Type.player

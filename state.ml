@@ -46,7 +46,7 @@ let to_json_string s =
   let g = `List (map_hash gun_to_json s.guns) in
   let p = `List (map_hash player_to_json s.players) in
   Yojson.Basic.to_string (`Assoc [
-    ("id"      , `String s.s_id);
+    ("id"      , `Int s.s_id);
     ("size"    , `List [`Float x; `Float y]);
     ("rad"     , `Float s.s_rad);
     ("ammo"    , a);
@@ -58,7 +58,7 @@ let to_json_string s =
 
 let to_list s = 
   let a  = map_hash ammo_to_entity s.ammo in
-  let b  = filter_hash (fun b -> b.b_own = "") s.bullets in
+  let b  = filter_hash (fun b -> b.b_own = no_owner) s.bullets in
   let b' = List.map bullet_to_entity b in
   let r  = map_hash rock_to_entity s.rocks in
   let g  = map_hash gun_to_entity s.guns in
@@ -135,11 +135,10 @@ let destroy_gun s g_id =
   let g = H.find s.guns    g_id in
   let _ = H.remove s.guns  g_id in
   let _ = C.remove s.map (gun_to_entity g) in
-  match g.g_own with
-  | ""   -> ()
-  | p_id -> let p = H.find s.players p_id in
-    let inv' = List.filter (fun id -> id <> g.g_id) p.p_inv in
-    H.replace s.players p_id {p with p_inv = inv'}
+  if g.g_own = no_owner then () else
+  let p = H.find s.players g.g_own in
+  let inv' = List.filter (fun id -> id <> g.g_id) p.p_inv in
+  H.replace s.players p.p_id {p with p_inv = inv'}
 
 let destroy_player s p_id =
   let p = H.find s.players p_id in
