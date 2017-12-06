@@ -69,11 +69,11 @@ open Router
 (* [resp_of_json] takes a (code,resp) from the Cohttp libary and converts the
     response to a Json object. *)
 let json_of_resp (code, resp) =
-  Cohttp_lwt_body.to_string resp >|=
+  Cohttp_lwt.Body.to_string resp >|=
     (fun s -> Yojson.Basic.from_string s)
 
 let resp_of_json body =
-  Yojson.Basic.to_string body |>  Cohttp_lwt_body.of_string
+  Yojson.Basic.to_string body |>  Cohttp_lwt.Body.of_string
 
 (* [make_newtwork_request] takes the [id] and the type of the
      request [router] and attempts to make a network request for the user.
