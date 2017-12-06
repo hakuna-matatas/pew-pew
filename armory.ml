@@ -5,14 +5,14 @@ let buffer = 5.0
 (* Returns coordinates [d] units away from [x, y] in direction [dir]. *)
 let spawn (x, y) d dir = 
   let d' = d *. (sqrt 2.0) /. 2.0 in match dir with
-  | N  -> (x       , y -. d )
-  | NE -> (x +. d' , y -. d')
+  | N  -> (x       , y +. d )
+  | NE -> (x +. d' , y +. d')
   | E  -> (x +. d  , y      )
-  | SE -> (x +. d' , y +. d')
-  | S  -> (x       , y +. d )
-  | SW -> (x -. d' , y +. d')
+  | SE -> (x +. d' , y -. d')
+  | S  -> (x       , y -. d )
+  | SW -> (x -. d' , y -. d')
   | W  -> (x -. d  , y      )
-  | NW -> (x -. d' , y -. d')
+  | NW -> (x -. d' , y +. d')
 
 let fire_pistol p =
   let rad = 5.0 in
