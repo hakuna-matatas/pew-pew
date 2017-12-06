@@ -18,6 +18,7 @@ type bullet = {
   b_pos  : pos;
   b_rad  : rad;
   b_dmg  : int;
+  b_time : int;
   b_step : bullet ->  bullet;
 }
 

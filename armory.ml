@@ -24,7 +24,12 @@ let fire_pistol p =
     b_pos = spawn p.p_pos (p.p_rad +. rad +. buffer) p.p_dir;
     b_rad = rad;
     b_dmg = 5;
-    b_step = (fun b -> {b with b_pos = spawn b.b_pos speed p.p_dir});
+    b_time = 0;
+    b_step = (fun b -> 
+        {b with
+         b_pos = spawn b.b_pos speed p.p_dir;
+         b_time = b.b_time + 1
+        });
   }]
 
 let pistol = 

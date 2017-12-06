@@ -18,6 +18,7 @@ type bullet = {
   b_pos  : pos;
   b_rad  : rad;
   b_dmg  : int;
+  b_time : int;
   b_step : bullet ->  bullet;
 }
 
@@ -87,7 +88,7 @@ let gun_to_json g =
   `Assoc [
     ("id"     , `String g.g_id);
     ("owner"  , `String g.g_own);
-    ("type"   , `String g.g_type)
+    ("type"   , `String g.g_type);
     ("ammo"   , `Int    g.g_ammo);
     ("pos"    , `List   [`Float x; `Float y]);
     ("rad"    , `Float  g.g_rad)
@@ -100,7 +101,7 @@ let player_to_json p =
   let inv' = List.map (fun g_id -> `String g_id) p.p_inv in
   `Assoc [
     ("id"   , `String p.p_id);
-    ("name" , `String p.p_name)
+    ("name" , `String p.p_name);
     ("hp"   , `Int    p.p_hp);
     ("dir"  , dir_to_json p.p_dir);
     ("inv"  , `List   inv');
