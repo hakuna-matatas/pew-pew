@@ -73,7 +73,7 @@ let ammo_of_json j = {
 }
 
 let bullet_of_json j = {
-  b_type = j |> member "type" |> to_int;
+  b_type = j |> member "type" |> to_string;
   b_rad  = j |> member "rad"  |> to_float;
   b_pos  = pos_of_json j "pos";
 }
