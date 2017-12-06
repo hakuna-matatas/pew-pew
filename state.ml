@@ -51,6 +51,56 @@ let to_list s =
   let p  = map_hash player_to_entity s.players in
   a @ b' @ r @ g @ p
 
+let rec repeat f n = 
+  if n <= 0 then () 
+  else let _ = f () in repeat f (n - 1)
+
+let free s = Collision.free s.map s.size
+
+let create_ammo s () =
+  let g = map_hash (fun g -> g.g_type) s.guns in
+  let a = Generate.ammo s.gen (free s) g in
+  let e = ammo_to_entity a in
+  let _ = Collision.update s.map e in
+  Hashtbl.add s.ammo a.a_id a
+
+let create_gun s () =
+  let g = Generate.gun s.gen (free s) in
+  let e = gun_to_entity g in
+  let _ = Collision.update s.map e in
+  Hashtbl.add s.guns g.g_id g
+
+let create_rock s () = 
+  let r = Generate.rock s.gen (free s) in
+  let e = rock_to_entity r in
+  let _ = Collision.update s.map e in
+  Hashtbl.add s.rocks r.r_id r
+
+let create_player s id ->
+  let p = Generate.player s.gen (free s) id in
+  let e = player_to_entity p in
+  let _ = Collision.update s.map e in
+  Hashtbl.add s.players p.p_id p
+
+let create id = 
+  let s = {
+    s_id    = id;     
+    s_rad   = ring_radius;
+    size    = map_width, map_height;
+    time    = 0;
+    gen     = Generate.create ();
+    map     = Collision.create ();
+    ammo    = Hashtbl.create 50;
+    bullets = Hashtbl.create 50;
+    guns    = Hashtbl.create 10;
+    players = Hashtbl.create 4;
+    rocks   = Hashtbl.create 50;
+  } in
+  repeat (create_rock s) initial_rocks;
+  repeat (create_gun  s) initial_guns;
+  repeat (create_ammo s) initial_ammo;
+  s
+
 let has_type s inv t = List.find_opt (fun g_id -> let g = Hashtbl.find s.guns g_id in g.g_type = t) inv
 
 (* Player-ammo interaction. If player owns the correct
@@ -97,26 +147,29 @@ let delete_bullet s b_id =
   let _ = Hashtbl.remove s.bullets b_id in
   let _ = Collision.remove s.map (bullet_to_entity b) in ()
 
-(* Bullet-ammo interaction. Destroy both. *)
-let collision_ba s b_id a_id = 
+(* Deletes ammo with id [a_id] from state [s]. *)
+let delete_ammo s a_id =
   let a = Hashtbl.find s.ammo    a_id in
   let _ = Hashtbl.remove s.ammo  a_id in
-  let _ = Collision.remove s.map (ammo_to_entity a) in
-  delete_bullet s b_id; false
+  let _ = Collision.remove s.map (ammo_to_entity a) in ()
 
-(* Bullet-bullet interaction. Destroy both. *)
-let collision_bb s b_id b_id' =
-  delete_bullet s b_id; delete_bullet s b_id'; false
-
-(* Bullet-gun interaction. Destroy both. *)
-let collision_bg s b_id g_id =
+(* Deletes gun with id [g_id] from state [s]. *)
+let delete_gun s g_id =
   let g = Hashtbl.find s.guns    g_id in
   let _ = Hashtbl.remove s.guns  g_id in
   let _ = Collision.remove s.map (gun_to_entity g) in
-  delete_bullet s b_id; false
+  match g.g_own with
+  | ""   -> ()
+  | p_id -> let p = Hashtbl.find s.players p_id in
+    let inv' = List.filter (fun id -> id <> g.g_id) p.p_inv in
+    Hashtbl.replace s.players p_id {p with p_inv = inv'}
 
-(* Bullet-rock interaction. Destroy bullet. *)
-let collision_br s b_id r_id = delete_bullet s b_id; false
+(* Deletes player with id [p_id] from state [s], along with all owned guns. *)
+let delete_player s p_id =
+  let p = Hashtbl.find s.players p_id in
+  let _ = Hashtbl.remove s.players p_id in
+  let _ = Collision.remove s.map (player_to_entity p) in
+  let _ = List.iter (fun g_id -> Hashtbl.remove s.guns g_id) p.p_inv in ()
 
 (* Imposes order on collision pairs for cleaner pattern matching. *)
 let order e e' = match e, e' with
@@ -140,55 +193,11 @@ let collision s (e, e') = match order e e' with
 | Player (p_id, _, _), Gun    (g_id, _, _)  -> collision_pg s p_id g_id
 | Player (p_id, _, _), Rock   (r_id, _, _)  -> true
 | Player (p_id, _, _), Player (p_id', _, _) -> true
-| Bullet (b_id, _, _), Ammo   (a_id, _, _)  -> collision_ba s b_id a_id
-| Bullet (b_id, _, _), Bullet (b_id', _, _) -> collision_bb s b_id b_id'
-| Bullet (b_id, _, _), Gun    (g_id, _, _)  -> collision_bg s b_id g_id
-| Bullet (b_id, _, _), Rock   (r_id, _, _)  -> collision_br s b_id r_id
+| Bullet (b_id, _, _), Ammo   (a_id, _, _)  -> delete_bullet s b_id; delete_ammo s a_id; false
+| Bullet (b_id, _, _), Bullet (b_id', _, _) -> delete_bullet s b_id; delete_bullet s b_id'; false
+| Bullet (b_id, _, _), Gun    (g_id, _, _)  -> delete_bullet s b_id; delete_gun s g_id; false
+| Bullet (b_id, _, _), Rock   (r_id, _, _)  -> delete_bullet s b_id; false
 | _, _ -> failwith "Error in map generation"  
-
-let rec repeat f n = 
-  if n <= 0 then () 
-  else let _ = f () in repeat f (n - 1)
-
-let free s = Collision.free s.map s.size
-
-let create_ammo s () =
-  let g = map_hash (fun g -> g.g_type) s.guns in
-  let a = Generate.ammo s.gen (free s) g in
-  let e = ammo_to_entity a in
-  let _ = Collision.update s.map e in
-  Hashtbl.add s.ammo a.a_id a
-
-let create_gun s () =
-  let g = Generate.gun s.gen (free s) in
-  let e = gun_to_entity g in
-  let _ = Collision.update s.map e in
-  Hashtbl.add s.guns g.g_id g
-
-let create_rock s () = 
-  let r = Generate.rock s.gen (free s) in
-  let e = rock_to_entity r in
-  let _ = Collision.update s.map e in
-  Hashtbl.add s.rocks r.r_id r
-
-let create id = 
-  let s = {
-    s_id    = id;     
-    s_rad   = ring_radius;
-    size    = map_width, map_height;
-    time    = 0;
-    gen     = Generate.create ();
-    map     = Collision.create ();
-    ammo    = Hashtbl.create 50;
-    bullets = Hashtbl.create 50;
-    guns    = Hashtbl.create 10;
-    players = Hashtbl.create 4;
-    rocks   = Hashtbl.create 50;
-  } in
-  repeat (create_rock s) initial_rocks;
-  repeat (create_gun  s) initial_guns;
-  repeat (create_ammo s) initial_ammo;
-  s
 
 let outside s p =
   let x1, y1 = p.p_pos in
@@ -219,6 +228,3 @@ let step s =
   let _ = if (s.time mod ammo_spawn_cd) = 0 then repeat (create_ammo s) ammo_spawn_count else () in
   let _ = if (s.time mod gun_spawn_cd)  = 0 then repeat (create_gun s)  gun_spawn_count  else () in
   ()
-
-let add_player = failwith "Unimplemented"
-let remove_player = failwith "Unimplemented"
