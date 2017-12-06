@@ -58,5 +58,14 @@ type state = {
   rocks   : rock list
 }
 
+type description = {
+  game_name    : name;
+  game_id      : id;
+  game_players : name list
+}
+
 (* Converts the given JSON object to a state, according to the API. *)
 val state_of_json : Yojson.Basic.json -> state
+
+(* Converts the given JSON object to a description list, according to the API. *)
+val description_of_json : Yojson.Basic.json -> description list

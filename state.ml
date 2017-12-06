@@ -70,22 +70,29 @@ let near_guns s p = s.guns
 let to_json_string s p_id =
   let x, y = s.size in
   let p = H.find s.players p_id in
-  let a = `List (near s p (fun a -> a.a_pos) s.ammo ammo_to_json) in
-  let b = `List (near s p (fun b -> b.b_pos) s.bullets bullet_to_json) in
-  let r = `List (near s p (fun r -> r.r_pos) s.rocks rock_to_json) in
-  let g = `List (near_guns s p) in
-  let p = `List (near s p (fun p -> p.p_pos) s.players player_to_json) in
+  let a = near s p (fun a -> a.a_pos) s.ammo ammo_to_json in
+  let b = near s p (fun b -> b.b_pos) s.bullets bullet_to_json in
+  let r = near s p (fun r -> r.r_pos) s.rocks rock_to_json in
+  let g = near_guns s p in
+  let p = near s p (fun p -> p.p_pos) s.players player_to_json in
   Yojson.Basic.to_string (`Assoc [
     ("id"      , `Int s.s_id);
     ("name"    , `String s.s_name);
     ("size"    , `List [`Float x; `Float y]);
     ("rad"     , `Float s.s_rad);
-    ("ammo"    , a);
-    ("bullets" , b);
-    ("guns"    , g);
-    ("players" , p);
-    ("rocks"   , r);
+    ("ammo"    , `List a);
+    ("bullets" , `List b);
+    ("guns"    , `List g);
+    ("players" , `List p);
+    ("rocks"   , `List r);
   ])
+
+let to_description s =
+  `Assoc [
+      ("game_name"    , `String s.s_name);
+      ("game_id"      , `Int    s.s_id);
+      ("game_players" , `List (map_hash (fun p -> `String p.p_name) s.players))
+  ]
 
 let to_list s = 
   let a  = map_hash ammo_to_entity s.ammo in
