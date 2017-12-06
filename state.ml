@@ -190,22 +190,42 @@ let create id =
   repeat (create_ammo s) 50;
   s
 
+let outside s p =
+  let x1, y1 = p.p_pos in
+  let x2, y2 = s.size in
+  let x = x2 -. (x1 /. 2.0) in
+  let y = y2 -. (y1 /. 2.0) in
+  s.s_rad *. s.s_rad < (x*.x +. y*.y)
+
 (* Stepping implementation must do the following: 
  *
  * 1) Update position of all bullets
  * 2) Handle collisions caused by bullet changes
- * 3) Update all gun cooldowns TODO
+ * 3) Update all gun cooldowns
  * 4) Increase time step 
- * 5) Decrease radius TODO
- * 6) Check for out-of-bound players TODO
- * 7) Spawn new ammo/guns TODO
+ * 5) Decrease radius
+ * 6) Check for out-of-bound players
+ * 7) Spawn new ammo/guns
  *
  *)
+let cd_rate = 1
+let constrict = 0.05
+let ammo_spawn = 200
+let ammo_count = 10
+let gun_spawn = 1000
+let gun_count = 10
 let step s = 
   let _ = map_hash (fun b -> Hashtbl.replace s.bullets b.b_id (b.b_step b)) s.bullets in
   let _ = map_hash bullet_to_entity s.bullets |> List.iter (Collision.update s.map) in
+  let _ = Collision.all s.map |> List.map (collision s) in
+  let _ = map_hash (fun g -> Hashtbl.replace s.guns g.g_id {g with g_cd = if g.g_cd <= 0 then 0 else g.g_cd - 1}) s.guns in
   let _ = s.time <- s.time + 1 in 
-  let _ = Collision.all s.map |> List.map (collision s) in ()
+  let _ = s.s_rad <- s.s_rad -. 0.05 in
+  let _ = map_hash (fun p -> if outside s p then Hashtbl.replace s.players p.p_id {p with p_hp = 0}) s.players in
+  let _ = if (s.time mod ammo_spawn) = 0 then repeat (create_ammo s) ammo_count else () in
+  let _ = if (s.time mod gun_spawn) = 0 then repeat (create_gun s) gun_count  else () in
+  ()
+
 
 let add_player = failwith "Unimplemented"
 let remove_player = failwith "Unimplemented"
