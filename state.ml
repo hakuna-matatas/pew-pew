@@ -50,21 +50,20 @@ let to_list s =
   let p  = map_hash player_to_entity s.players in
   a @ b' @ r @ g @ p
 
-let contains l id = List.exists (fun id' -> id = id') l
+let has_type s inv t = List.find_opt (fun g_id -> let g = Hashtbl.find s.guns g_id in g.g_type = t) inv
 
 (* Player-ammo interaction. If player owns the correct
  * gun type for the ammo drop, pick it up; otherwise collision occurs. *)
 let collision_pa s p_id a_id = 
   let p = Hashtbl.find s.players p_id in
   let a = Hashtbl.find s.ammo    a_id in
-  let g_id = a.a_gun in
-  if contains p.p_inv g_id then
-    let g  = Hashtbl.find s.guns g_id in
+  match has_type s p.p_inv a.a_gun with
+  | None    -> true
+  | Some g_id  -> let g = Hashtbl.find s.guns g_id in
     let g' = {g with g_ammo = g.g_ammo + a.a_amt} in
-    let _  = Hashtbl.replace  s.guns g_id g' in
-    let _  = Hashtbl.remove   s.ammo a_id    in
+    let _  = Hashtbl.replace  s.guns g'.g_id g' in
+    let _  = Hashtbl.remove   s.ammo a_id       in
     let _  = Collision.remove s.map (ammo_to_entity a) in false
-  else true
 
 (* Player-bullet interaction. Player always
  * takes damage, with friendly fire. *)
@@ -84,8 +83,9 @@ let collision_pb s p_id b_id =
 let collision_pg s p_id g_id =
   let p = Hashtbl.find s.players p_id in
   let g = Hashtbl.find s.guns    g_id in
-  if contains p.p_inv g.g_id then true
-  else
+  match has_type s p.p_inv g.g_type with
+  | Some _ -> true
+  | None   ->
     let g' = {g with g_own = p_id} in
     let _  = Hashtbl.replace s.guns g.g_id g' in
     Collision.remove s.map (gun_to_entity g); false
@@ -99,7 +99,7 @@ let delete_bullet s b_id =
 (* Bullet-ammo interaction. Destroy both. *)
 let collision_ba s b_id a_id = 
   let a = Hashtbl.find s.ammo    a_id in
-  let _ = Hashtbl.remove s.ammo    a_id in
+  let _ = Hashtbl.remove s.ammo  a_id in
   let _ = Collision.remove s.map (ammo_to_entity a) in
   delete_bullet s b_id; false
 
@@ -110,7 +110,7 @@ let collision_bb s b_id b_id' =
 (* Bullet-gun interaction. Destroy both. *)
 let collision_bg s b_id g_id =
   let g = Hashtbl.find s.guns    g_id in
-  let _ = Hashtbl.remove s.guns    g_id in
+  let _ = Hashtbl.remove s.guns  g_id in
   let _ = Collision.remove s.map (gun_to_entity g) in
   delete_bullet s b_id; false
 
@@ -152,7 +152,7 @@ let rec repeat f n =
 let free s = Collision.free s.map s.size
 
 let create_ammo s () =
-  let g = map_hash (fun g -> g.g_id) s.guns in
+  let g = map_hash (fun g -> g.g_type) s.guns in
   let a = Generate.ammo s.gen (free s) g in
   let e = ammo_to_entity a in
   let _ = Collision.update s.map e in
@@ -206,8 +206,6 @@ let step s =
   let _ = map_hash bullet_to_entity s.bullets |> List.iter (Collision.update s.map) in
   let _ = s.time <- s.time + 1 in 
   let _ = Collision.all s.map |> List.map (collision s) in ()
-
-
 
 let add_player = failwith "Unimplemented"
 let remove_player = failwith "Unimplemented"

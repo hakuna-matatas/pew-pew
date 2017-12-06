@@ -44,6 +44,7 @@ type gun = {
   g_own  : id;
   g_pos  : pos;
   g_rad  : rad;
+  g_type : id;
   g_rate : int;
   g_ammo : int;
   g_fire : player -> bullet list;
@@ -94,13 +95,12 @@ let bullet_to_json b =
     ("pos" , `List   [`Float x; `Float y])
   ]
 
-
 let bullet_to_entity b = Bullet (b.b_id, b.b_rad, b.b_pos)
 
 let gun_to_json g =
   let x, y = g.g_pos in
   `Assoc [
-    ("id"     , `String g.g_id);
+    ("id"     , `String g.g_type);
     ("owner"  , `String g.g_own);
     ("ready"  , `Bool   (g.g_cd = 0));
     ("ammo"   , `Int    g.g_ammo);

@@ -18,7 +18,7 @@ let fire_pistol p =
   let rad = 5.0 in
   let speed = 0.5 in
   [{
-    b_id  = "Pistol_b";
+    b_id  = "";
     b_gun = "Pistol";
     b_own = p.p_id;
     b_pos = spawn p.p_pos (p.p_rad +. rad +. buffer) p.p_dir;
@@ -29,11 +29,12 @@ let fire_pistol p =
 
 let pistol = 
   {
-    g_id   = "Pistol";
+    g_id   = "";
     g_cd   = 0;
     g_own  = "";
     g_pos  = (0.00, 0.00); 
     g_rad  = 100.00;
+    g_type = "Pistol";
     g_rate = 10;
     g_ammo = 20;
     g_fire = fire_pistol
