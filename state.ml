@@ -76,7 +76,7 @@ let create_rock s () =
   let _ = Collision.update s.map e in
   Hashtbl.add s.rocks r.r_id r
 
-let create_player s id ->
+let create_player s id =
   let p = Generate.player s.gen (free s) id in
   let e = player_to_entity p in
   let _ = Collision.update s.map e in
@@ -206,6 +206,11 @@ let outside s p =
   let y = y2 -. (y1 /. 2.0) in
   s.s_rad *. s.s_rad < (x*.x +. y*.y)
 
+let sqdist (x1, y1) (x2, y2) =
+  let x = x2 -. x1 in
+  let y = y2 -. y1 in
+  (x*.x) +. (y*.y)
+
 (* Stepping implementation must do the following: 
  *
  * 1) Update position of all bullets
@@ -228,3 +233,23 @@ let step s =
   let _ = if (s.time mod ammo_spawn_cd) = 0 then repeat (create_ammo s) ammo_spawn_count else () in
   let _ = if (s.time mod gun_spawn_cd)  = 0 then repeat (create_gun s)  gun_spawn_count  else () in
   ()
+
+let fire s p_id g_id =
+  let p = Hashtbl.find s.players p_id in
+  let g = Hashtbl.find s.guns    g_id in
+  if p.p_hp <= 0 then destroy_player s p.p_id else
+  if not (List.exists (fun id -> id = g_id) p.p_inv) then () else
+  if not (g.g_own = p.p_id) then () else
+  let bullets = Generate.bullet s.gen p g in
+  List.iter (fun b -> 
+      let _ = Hashtbl.add s.bullets b.b_id b in
+      Collision.update s.map (bullet_to_entity b)
+    ) bullets
+
+let move s p_id pos =
+  let p = Hashtbl.find s.players p_id in
+  if p.p_hp <= 0 then destroy_player s p.p_id else
+  if sqdist p.p_pos pos > max_sq_distance then () else
+  let p' = {p with p_pos = pos} in
+  let _ = Collision.update s.map (player_to_entity p') in
+  Hashtbl.replace s.players p_id p'

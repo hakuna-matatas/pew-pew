@@ -51,3 +51,6 @@ let gun_spawn_cd     = 1000
 
 (* Number of guns to drop per interval *)
 let gun_spawn_count  = 10
+
+(* Maximum squared distance a player can travel before flagged as cheating *)
+let max_sq_distance = 10000.00
