@@ -60,7 +60,7 @@ let dir_of_json j =
   | "S" -> S | "SW" -> SW | "W" -> W | "NW" -> NW
   | _ -> failwith "Malformed JSON direction"
 
-let pos_of_json j field = 
+let pos_of_json j field =
   match (List.map to_float (j |> member field |> to_list)) with
   | a :: b :: [] -> (a, b)
   | _            -> failwith "Malformed JSON position"
