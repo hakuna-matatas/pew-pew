@@ -103,6 +103,7 @@ let rock_of_json j = {
 let convert j f field = List.map (fun j' -> f j') (j |> member field)
 
 let state_of_json j = {
+  id      = member "id" j  |> to_string
   size    = pos_of_json "size";
   radius  = member "rad" j |> to_float
   ammo    = convert j ammo_of_json "ammo"

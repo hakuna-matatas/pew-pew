@@ -46,6 +46,7 @@ let to_json_string s =
   let g = `List (map_hash gun_to_json s.guns) in
   let p = `List (map_hash player_to_json s.players) in
   Yojson.Basic.to_string (`Assoc [
+    ("id"      , `String s.s_id);
     ("size"    , `List [`Float x; `Float y]);
     ("rad"     , `Float s.s_rad);
     ("ammo"    , a);
