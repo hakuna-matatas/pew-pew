@@ -21,7 +21,7 @@ type t = {
 
 (* --------------------------------- *)
 (*                                   *)
-(*     Hashtbl Utility Functions     *)
+(*         Utility Functions         *)
 (*                                   *)
 (* --------------------------------- *)
 
@@ -33,19 +33,48 @@ let iter_hash f h = to_values h |> List.iter f
 let map_hash f h = to_values h |> List.map f
 let filter_hash f h = to_values h |> List.filter f
 
+let sqdist (x1, y1) (x2, y2) =
+  let x = x2 -. x1 in
+  let y = y2 -. y1 in
+  (x*.x) +. (y*.y)
+
+let inside c r p = r*.r > sqdist c p
+
 (* --------------------------------- *)
 (*                                   *)
 (*          Type Conversions         *)
 (*                                   *)
 (* --------------------------------- *)
 
-let to_json_string s =
+(* [near s p to_pos h to_json] is a JSON list of 
+ * elements in Hashtbl [h] in state [s], which are
+ * converted by function [to_pos] into positions,
+ * to be filtered by distance from player [p] and
+ * converted into JSON by function to_json.
+ *)
+let near s p to_pos h to_json = h
+  |> filter_hash (fun x -> inside p.p_pos vision_radius (to_pos x)) 
+  |> List.map to_json
+
+(* [near_guns s p] is a JSON list of guns that are
+ * visible to the player (i.e. within vision_radius
+ * or in someone's inventory).
+ *)
+let near_guns s p = s.guns
+  |> filter_hash (fun g -> 
+      g.g_own <> no_owner || 
+      inside p.p_pos vision_radius g.g_pos
+    ) 
+  |> List.map gun_to_json
+
+let to_json_string s p_id =
   let x, y = s.size in
-  let a = `List (map_hash ammo_to_json s.ammo) in
-  let b = `List (map_hash bullet_to_json s.bullets) in
-  let r = `List (map_hash rock_to_json s.rocks) in
-  let g = `List (map_hash gun_to_json s.guns) in
-  let p = `List (map_hash player_to_json s.players) in
+  let p = H.find s.players p_id in
+  let a = `List (near s p (fun a -> a.a_pos) s.ammo ammo_to_json) in
+  let b = `List (near s p (fun b -> b.b_pos) s.bullets bullet_to_json) in
+  let r = `List (near s p (fun r -> r.r_pos) s.rocks rock_to_json) in
+  let g = `List (near_guns s p) in
+  let p = `List (near s p (fun p -> p.p_pos) s.players player_to_json) in
   Yojson.Basic.to_string (`Assoc [
     ("id"      , `Int s.s_id);
     ("name"    , `String s.s_name);
@@ -245,15 +274,9 @@ let remove_old_bullets s = iter_hash (fun b ->
       destroy_bullet s b.b_id else ()
   ) s.bullets
 
-let outside s p =
-  let x1, y1 = p.p_pos in
-  let x2, y2 = s.size in
-  let x = x2 -. (x1 /. 2.0) in
-  let y = y2 -. (y1 /. 2.0) in
-  s.s_rad *. s.s_rad < (x*.x +. y*.y)
-
 let remove_dead_players s = iter_hash (fun p ->
-    if p.p_hp <= 0 || outside s p then 
+    let w, h = s.size in
+    if p.p_hp <= 0 || not (inside (w/.2., h/.2.) s.s_rad p.p_pos) then 
       destroy_player s p.p_id else ()
   ) s.players
 
@@ -310,11 +333,6 @@ let fire s p_id g_id =
       let _ = H.add s.bullets b.b_id b in
       C.update s.map (bullet_to_entity b)
     ) bullets
-
-let sqdist (x1, y1) (x2, y2) =
-  let x = x2 -. x1 in
-  let y = y2 -. y1 in
-  (x*.x) +. (y*.y)
 
 let move s p_id pos =
   let p = H.find s.players p_id in
