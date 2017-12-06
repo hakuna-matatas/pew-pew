@@ -1,6 +1,6 @@
 open Graphics
 open Settings
-open Clo
+open Client
 
 let w_string = " 500x500"
 let screen_width = 500
@@ -12,7 +12,7 @@ type pos = (int*int)
 
 let player_pos = ref (50,50)
 let rock_pos = (75,75)
-
+(*
 type person = {
   id:string;
   name:string;
@@ -21,7 +21,7 @@ type person = {
   rad:int;
   dir:string;
   inv:string list
-}
+} *)
 
 let get_tl_x px py =
   let half_screen = screen_width / 2 in
@@ -54,8 +54,8 @@ let draw_player p = failwith "todo"
 let draw_guns g = failwith "todo"
 
 let draw_rock rock =
-  let (rx,ry) = get_rel_pos rock.pos in
-  draw_circle rx ry rock.rad
+  let (rx,ry) = get_rel_pos rock.r_pos in
+  draw_circle rx ry rock.r_rad
 
 let draw_rocks l =
   List.iter draw_rock l

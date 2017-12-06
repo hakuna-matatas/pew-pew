@@ -3,8 +3,8 @@
  * Contains helper functions for communicating via JSON.
  *)
 
-type pos  = (float * float)
-type rad  = float
+type pos  = (int * int)
+type rad  = int
 type dir  = N | NE | E | SE | S | SW | W | NW
 type id   = int
 type name = string
@@ -49,8 +49,8 @@ type rock = {
 type state = {
   id    : id;
   name    : name;
-  size    : float * float;
-  radius  : float;
+  size    : int * int;
+  radius  : int;
   ammo    : ammo list;
   bullets : bullet list;
   players : player list;
