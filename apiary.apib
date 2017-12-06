@@ -24,13 +24,13 @@ Returns the current state of the game running in lobby [lobby_id].
                 "radius": 4000.00,
                 "ammo": [
                     {
-                        "gun"   : "pistol",
+                        "gun"   : "Bazooka",
                         "count" : 5,
                         "pos"   : [1.06, 9.20],
                         "rad"   : 25.00
                     },
                     {
-                        "gun"   : "not-a-pistol",
+                        "gun"   : "Not-a-pistol",
                         "count" : 10,
                         "pos"   : [10.57, 3.19]
                         "rad"   : 100.00
@@ -52,45 +52,55 @@ Returns the current state of the game running in lobby [lobby_id].
                 ,
                 "people": [
                     {
-                        "id"  : "username",
-                        "hp"  : 5,
-                        "pos" : [0.00, 2.00],
-                        "rad" : 5.00,
-                        "dir" : "NW",
-                        "inv" : ["anotha-gun", "pistol"]
+                        "id"   : "5023",
+                        "name" : "AGao",
+                        "hp"   : 5,
+                        "pos"  : [0.00, 2.00],
+                        "rad"  : 5.00,
+                        "dir"  : "NW",
+                        "inv"  : ["12301", "10123"]
                     },
                     {
-                        "id"  : "otherusername",
-                        "hp"  : 100,
-                        "pos" : [300.55, 490.34],
-                        "rad" : 5.00,
-                        "dir" : "S",
-                        "inv" : []
+                        "id"   : "5024",
+                        "name" : "TBaig"
+                        "hp"   : 100,
+                        "pos"  : [300.55, 490.34],
+                        "rad"  : 5.00,
+                        "dir"  : "S",
+                        "inv"  : []
                     }
                 ]
                 ,
                 "guns": [
                     {
-                        "id"    : "pistol",
+                        "id"    : "12301",
+                        "type"  : "Pistol",
                         "ammo"  : 10000,
-                        "ready" : true,
-                        "owner" : "username",
+                        "owner" : "5023",
                         "pos"   : [0.00, 5.00],
                         "rad"   : 5.00
                     }
                     {
-                        "id"    : "not-a-pistol",
+                        "id"    : "10123",
+                        "type"  : "Not-a-pistol",
                         "ammo"  : 10,
-                        "ready" : false,
-                        "owner" : "username",
+                        "owner" : "5023",
                         "pos"   : [201.32, 321.55]
                         "rad"   : 5.00
                     },
                     {
-                        "id"    : "anotha-gun",
+                        "id"    : "1201",
+                        "type"  : "Bazooka",
                         "ammo"  : 100,
                         "owner" : "",
-                        "ready" : true,
+                        "pos"   : [123.11, 321.11]
+                        "rad"   : 5.00
+                    },
+                    {
+                        "id"    : "9999",
+                        "type"  : "Bazooka",
+                        "ammo"  : 150,
+                        "owner" : "",
                         "pos"   : [123.11, 321.11]
                         "rad"   : 5.00
                     },
