@@ -46,7 +46,7 @@ module Router = struct
     let gun_id = string_of_int gun_id in
     match router with
     | GetState -> root ^ "/game?game_id=" ^ game_id ^ "&player_id=" ^ id
-    | Move -> root ^ "/game?game_id=" ^ game_id ^ "&player_id=" ^ id
+    | Move -> root ^ "/move?game_id=" ^ game_id ^ "&player_id=" ^ id
     | Fire -> root ^ "/fire?game_id=" ^ game_id ^ "&player_id=" ^ id ^ "&gun_id=" ^ gun_id
     | GetLobby -> root ^ "/games"
     | CreateLobby -> root ^ "/create"
@@ -89,6 +89,7 @@ let make_newtwork_request
     id game_id gun_id player_name router ?body (map: 'a -> 'b) (callback: 'b -> 'c)  =
   let open Cohttp_lwt_unix in
   let url = get_url id game_id gun_id player_name router in
+  let _ = print_endline url in
   let req_type = get_request_type router body in
   let mapped_body =
   match req_type with
@@ -126,17 +127,18 @@ let get_world_state game_id player_id (callback) =
   make_get_request player_id game_id 0 "" GetState state_of_json callback
 
 let fire game_id player_id gun_id callback =
-  make_get_request player_id game_id gun_id "" Fire state_of_json callback
+  make_get_request player_id game_id gun_id "" Fire (fun x -> x) callback
 
 let move_location game_id player_id (x,y) callback =
   let body =  `List [`Float (float_of_int x); `Float (float_of_int y)] in
-  make_post_request player_id game_id Move body state_of_json callback
+  make_post_request player_id game_id Move body (fun x -> x) callback
 
 (******************************************************************************
    Lobby Requests
 ******************************************************************************)
 
 let get_lobbies (callback) =
+  print_string "derp";
   make_get_request 0 0 0 "" GetLobby description_of_json callback
 
 let create_lobby game_name player_name callback =

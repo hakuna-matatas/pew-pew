@@ -16,11 +16,11 @@ val get_lobbies: (description list -> 'a) -> 'a
 
 (* [move_location game_id player_id pos callback] attempts to move [player_id] to
  * [pos] in [game_id]. *)
-val move_location:  id -> id -> pos -> (state -> 'a) -> 'a
+val move_location:  id -> id -> pos -> (Yojson.Basic.json -> 'a) -> 'a
 
 (* [fire game_id player_id gun_id callback] attempts to fire [player_id]'s
  * [gun_id] in [game_id]. *)
-val fire: id -> id -> id -> (state -> 'a) -> 'a
+val fire: id -> id -> id -> (Yojson.Basic.json -> 'a) -> 'a
 
 (* [get_lobbies game_name player_name callback] creates [game_name] and
  * inserts [player_name], *)

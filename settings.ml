@@ -5,7 +5,7 @@
 (* ---------------------------- *)
 
 (* How many entities the game starts with *)
-let initial_rocks = 50
+let initial_rocks = 5000
 let initial_guns  = 10
 let initial_ammo  = 50
 
@@ -38,7 +38,7 @@ let vision_radius = 500.00
 let player_radius = 30.00
 let ammo_radius   = 20.00
 let gun_radius    = 20.00
-let rock_radius   = 60.00
+let rock_radius   = 30.00
 
 (* ---------------------------- *)
 (*                              *)
@@ -80,7 +80,7 @@ let client_width = 1920
 let client_height = 1000
 
 (* Delay per client-side tick in milliseconds. *)
-let client_tick_cooldown = 10
+let client_tick_cooldown = 5
 
 (* Player movement per client-side tick *)
-let client_player_speed = 5
+let client_player_speed = 10

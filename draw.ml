@@ -103,7 +103,9 @@ let draw_ring rad =
 
 let draw_state
     {id;name;size;radius;ammo;bullets;players;guns;rocks}
-    p gun =
+    p_id gun =
+  let p = List.find (fun p -> p.p_id = p_id) players in
+  let _ = print_endline ("Position changes to " ^ (string_of_int (fst p.p_pos)) ^ "in draw") in
   let ppos = p.p_pos in
   draw_ammo ammo ppos;
   draw_bullets bullets ppos;
