@@ -6,7 +6,7 @@ let map = create ()
 let itoa i = string_of_int i
 
 let entity id r pos =
-  let open Type in Player (id, r, pos)
+  let open Stype in Player (id, r, pos)
 
 let player = entity 0 50.0 (50.00, 50.00)
 let player' = entity 1 50.0 (50.00, 50.00)

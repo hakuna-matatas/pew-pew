@@ -1,4 +1,4 @@
-open Type 
+open Stype 
 open Settings
 
 type t = int ref

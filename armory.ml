@@ -1,4 +1,4 @@
-open Type
+open Stype
 
 let buffer = 5.0
 
