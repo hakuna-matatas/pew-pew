@@ -73,20 +73,20 @@ let dir_of_json j =
   | _ -> failwith "Malformed JSON direction"
 
 let pos_of_json j field =
-  match (List.map to_int (j |> member field |> to_list)) with
-  | a :: b :: [] -> (a, b)
+  match (List.map to_float (j |> member field |> to_list)) with
+  | a :: b :: [] -> (int_of_float a, int_of_float b)
   | _            -> failwith "Malformed JSON position"
 
 let ammo_of_json j = {
   a_type = j |> member "type"   |> to_string;
-  a_rad  = j |> member "rad"    |> to_int;
+  a_rad  = j |> member "rad"    |> to_float |> int_of_float;
   a_amt  = j |> member "amount" |> to_int;
   a_pos  = pos_of_json j "pos";
 }
 
 let bullet_of_json j = {
   b_type = j |> member "type" |> to_string;
-  b_rad  = j |> member "rad"  |> to_int;
+  b_rad  = j |> member "rad"  |> to_float |> int_of_float;
   b_pos  = pos_of_json j "pos";
 }
 
@@ -103,7 +103,7 @@ let player_of_json j = {
   p_id   = j |> member "id"   |> to_int;
   p_name = j |> member "name" |> to_string;
   p_hp   = j |> member "hp"   |> to_int;
-  p_rad  = j |> member "rad"  |> to_int;
+  p_rad  = j |> member "rad"  |> to_float |> int_of_float;
   p_pos  = pos_of_json j "pos";
   p_dir  = dir_of_json (j |> member "dir");
   p_inv  = List.map to_int (j |> member "inv" |> to_list)
@@ -111,12 +111,12 @@ let player_of_json j = {
 
 let rock_of_json j = {
   r_pos = pos_of_json j "pos";
-  r_rad = j |> member "rad" |> to_int
+  r_rad = j |> member "rad" |> to_float |> int_of_float
 }
 
 let convert j f field = List.map (fun j' -> f j') (j |> member field |> to_list)
 
-let create_post g_name p_name = 
+let create_post g_name p_name =
   `Assoc [
     ("game_name"   , `String g_name);
     ("player_name" , `String p_name);
@@ -133,7 +133,7 @@ let state_of_json j = {
   id      = member "id" j  |> to_int;
   name    = member "name" j |> to_string;
   size    = pos_of_json j "size";
-  radius  = member "rad" j |> to_int;
+  radius  = member "rad" j |> to_float |> int_of_float;
   ammo    = convert j ammo_of_json "ammo";
   bullets = convert j bullet_of_json "bullets";
   guns    = convert j gun_of_json "guns";

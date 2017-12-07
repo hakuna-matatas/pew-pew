@@ -8,4 +8,3 @@ val create : Ctype.id -> Ctype.id -> t
 
 (* This is the main method of the GUI and initializes the application. *)
 val run: t -> unit
-

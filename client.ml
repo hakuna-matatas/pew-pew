@@ -15,7 +15,7 @@ let create g_id p_id = {
 }
 
 let to_pos st game =
-  let p = List.find (fun p' -> p'.p_id = s.p_id) game.players in p.p_pos 
+  let p = List.find (fun p' -> p'.p_id = st.p_id) game.players in p.p_pos
 
 let get_direction () =
   if is_key_pressed KEY_w && is_key_pressed KEY_a then Some NW else
