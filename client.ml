@@ -1,7 +1,6 @@
 open Graphics
 open Settings
 open Ctype
-open Router
 open Sdlevent
 open Sdlkey
 
@@ -12,7 +11,7 @@ type t = {
 }
 
 let create g_id p_id = {
-  p_id; g_id; ref (0, 0)
+  p_id; g_id; pos = (0, 0)
 }
 
 let to_pos st game =
@@ -28,27 +27,31 @@ let get_direction () =
   if is_key_pressed KEY_s then Some S else
   if is_key_pressed KEY_a then Some W else None
 
-let move s d = 
-  let (x, y) = !player_pos in 
+let move st d = 
+  let (x, y) = st.pos in 
   let cps  = client_player_speed in
   let cps' = int_of_float (sqrt 2. *. (float_of_int cps) /. 2.) in
   let _ = match d with
-  | NW -> player_pos := (x - cps' , y + cps')
-  | NE -> player_pos := (x + cps' , y + cps')
-  | SE -> player_pos := (x + cps' , y - cps')
-  | SW -> player_pos := (x - cps' , y - cps')
-  | N  -> player_pos := (x , y + cps)
-  | E  -> player_pos := (x + cps , y)
-  | S  -> player_pos := (x , y - cps)
-  | W  -> player_pos := (x - cps , y) in
+  | NW -> st.pos <- (x - cps' , y + cps')
+  | NE -> st.pos <- (x + cps' , y + cps')
+  | SE -> st.pos <- (x + cps' , y - cps')
+  | SW -> st.pos <- (x - cps' , y - cps')
+  | N  -> st.pos <- (x , y + cps)
+  | E  -> st.pos <- (x + cps , y)
+  | S  -> st.pos <- (x , y - cps)
+  | W  -> st.pos <- (x - cps , y) in
   clear_graph (); draw_state s
 
-let rec loop s () =
-  Unix.sleepf 0.02;
+let rec local_loop st () =
+  Unix.sleepf client_local_cooldown;
   let _ = match get_direction () with
   | None   -> ()
-  | Some d -> move s d in
-  loop s ()
+  | Some d -> move st d in
+  loop st ()
+
+let rec network_loop st () =
+  Unix.sleepf client_network_cooldown;
+  let st' = Router.get_world_state st.p_id bla bla in
 
 let main () =
   open_graph (" " ^ (string_of_int client_width) ^ "x" ^ (string_of_int client_height));
