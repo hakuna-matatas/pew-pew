@@ -20,14 +20,14 @@ val to_json_string: t -> Type.id -> string
 
 (* [to_description st] is the JSON representation of a game description
  * as defined by the API. *)
-val to_description: t -> Yojson.json
+val to_description: t -> Yojson.Basic.json
 
 (* [to_list st] is the list of all entities in [st]. *)
 val to_list: t -> Type.entity list
 
 (* [create_player name st] adds the player with username [name] to the game, and
  * returns a unique ID. *)
-val create_player: t -> Type.name -> unit
+val create_player: t -> Type.name -> Type.id
 
 (* [step st] increments the game state by one tick. *)
 val step: t -> unit
