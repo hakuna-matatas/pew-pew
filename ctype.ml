@@ -61,6 +61,11 @@ type description = {
   game_players : name list
 }
 
+type create_response = {
+  rgame_id   : id;
+  rplayer_id : id;
+}
+
 let dir_of_json j =
   match to_string j with
   | "N" -> N | "NE" -> NE | "E" -> E | "SE" -> SE
@@ -110,6 +115,19 @@ let rock_of_json j = {
 }
 
 let convert j f field = List.map (fun j' -> f j') (j |> member field |> to_list)
+
+let create_post g_name p_name = 
+  `Assoc [
+    ("game_name"   , `String g_name);
+    ("player_name" , `String p_name);
+  ]
+
+let create_response_of_json j = {
+  rgame_id   = member "game_id" j |> to_int;
+  rplayer_id = member "player_id" j |> to_int
+}
+
+let join_response_of_json j = member "player_id" j |> to_int
 
 let state_of_json j = {
   id      = member "id" j  |> to_int;

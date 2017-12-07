@@ -64,8 +64,22 @@ type description = {
   game_players : name list
 }
 
+type create_response = {
+  rgame_id   : id;
+  rplayer_id : id;
+}
+
 (* Converts the given JSON object to a state, according to the API. *)
 val state_of_json : Yojson.Basic.json -> state
 
 (* Converts the given JSON object to a description list, according to the API. *)
 val description_of_json : Yojson.Basic.json -> description list
+
+(* [create_post g_name p_name] represents a request by player [p_name] to create game [g_name]. *)
+val create_post : name -> name -> Yojson.Basic.json 
+
+(* [create_response_of_json j] represents a new game created by the server according to the API. *)
+val create_response_of_json : Yojson.Basic.json -> create_response
+
+(* [join_response_of_json j] is the player_id from a join request. *)
+val join_response_of_json : Yojson.Basic.json -> id

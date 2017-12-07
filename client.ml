@@ -1,43 +1,22 @@
 open Graphics
 open Settings
 open Ctype
+open Router
 open Sdlevent
 open Sdlkey
 
-let player_pos = ref (1500,1500)
-let rock_pos = (75,75)
-let id = ref 0
-
-let state_test = {
-  id = 0;
-  name = "test_state";
-  size = (5000,5000);
-  radius = 2000;
-  ammo = [{a_type = "pistol";
-           a_pos = (1200,1200);
-           a_rad = 50;
-           a_amt = 5;
-          }];
-  bullets = [{b_type = "pistol";
-              b_pos = (1550,1550);
-              b_rad = 5;}];
-  players = [{p_id = 1;
-              p_name = "Alan";
-              p_hp = 5;
-              p_pos = (1500,1500);
-              p_rad = 20;
-              p_dir = SE;
-              p_inv = [10]}];
-  guns = [{g_id = 10;
-          g_own = 1;
-          g_pos = (1250, 1250);
-          g_rad = 10;
-          g_type = "pistol";
-          g_ammo = 10}];
-  rocks = [{r_pos = (1340, 1340);
-            r_rad = 3}];
+type t = {
+  p_id        : id;
+  g_id        : id;
+  mutable pos : pos;
 }
 
+let create g_id p_id = {
+  p_id; g_id; ref (0, 0)
+}
+
+let to_pos st game =
+  let p = List.find (fun p' -> p'.p_id = s.p_id) game.players in p.p_pos 
 
 let get_direction () =
   if is_key_pressed KEY_w && is_key_pressed KEY_a then Some NW else
@@ -74,10 +53,6 @@ let rec loop s () =
 let main () =
   open_graph (" " ^ (string_of_int client_width) ^ "x" ^ (string_of_int client_height));
   set_window_title "Apex";
-  set_color green;
-  fill_rect 0 0 client_height client_width;
-
-  draw_state state_test;
 
   Sdl.init [`EVENTTHREAD; `VIDEO];
   Sdlkey.enable_key_repeat ?delay:(Some 0) ?interval:(Some 10) ();
