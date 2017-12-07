@@ -74,7 +74,7 @@ let to_json_string s p_id =
   let b = near s p (fun b -> b.b_pos) s.bullets bullet_to_json in
   let r = near s p (fun r -> r.r_pos) s.rocks rock_to_json in
   let g = near_guns s p in
-  let p = near s p (fun p -> p.p_pos) s.players player_to_json in
+  let p = map_hash (fun p -> player_to_json p) s.players in
   Yojson.Basic.to_string (`Assoc [
     ("id"      , `Int s.s_id);
     ("name"    , `String s.s_name);
@@ -227,6 +227,8 @@ let collision_pg s p_id g_id =
   match has_type s p.p_inv g.g_type with
   | Some _ -> true
   | None   ->
+    let p' = {p with p_inv = g.g_id :: p.p_inv} in
+    let _ = H.replace s.players p.p_id p' in
     let g' = {g with g_own = p_id} in
     let _  = H.replace s.guns g.g_id g' in
     C.remove s.map (gun_to_entity g); false
@@ -335,7 +337,9 @@ let fire s p_id g_id =
   let g = H.find s.guns    g_id in
   if p.p_hp <= 0 then destroy_player s p.p_id else
   if not (List.exists (fun id -> id = g_id) p.p_inv) then () else
-  if not (g.g_own = p.p_id) then () else
+  if not (g.g_own = p.p_id && g.g_cd = 0) then () else
+  let _ = H.replace s.guns g_id {g with g_cd = g.g_rate} in
+  let _ = H.replace s.players p.p_id {p with p_last = g.g_type} in
   let bullets = Generate.bullet s.gen p g in
   List.iter (fun b -> 
       let _ = H.add s.bullets b.b_id b in

@@ -1,5 +1,6 @@
 open Graphics
 open Array
+open Router
 
 type description = {
   game_name    : string;
@@ -13,16 +14,13 @@ let y_size= 500;;
 
 let lobby_size= 12;;
 
-let lobby = [{game_name="a";game_id=1;game_players=["Bob";"Bill";"Billy"]};
-             {game_name="baa";game_id=2;game_players=["Woof";"Moo";"Meow"]};
-             {game_name="choo";game_id=3;game_players=["Beep";"Bop";"Whop"]};
-             {game_name="dog";game_id=4;game_players=["Duffy";"Doofy"]};
-             {game_name="egg";game_id=5;game_players=["ugh"]}];;
-
+let lobby = get_lobbies ident;;
 
 let username= ref "";;
 
 let lobbyname= ref "";;
+
+let player_id= ref 0;;
 
 let rec first_n n lst= match lst with
   | []-> []
@@ -175,40 +173,40 @@ let rec mouse_pos () =
 
   (match grid_num with
    |1-> if (List.length (!current) > 0)
-     then (print_string "button 1"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |2-> if (List.length (!current) > 1)
-     then (print_string "button 2"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |3-> if (List.length (!current) > 2)
-     then (print_string "button 3"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |4-> if (List.length (!current) > 3)
-     then (print_string "button 4"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |5-> if (List.length (!current) > 4)
-     then (print_string "button 5"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |6-> if (List.length (!current) > 5)
-     then (print_string "button 6"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |7-> if (List.length (!current) > 6)
-     then (print_string "button 7"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |8-> if (List.length (!current) > 7)
-     then (print_string "button 8"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |9-> if (List.length (!current) > 8)
-     then (print_string "button 9"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |10-> if (List.length (!current) > 9)
-     then (print_string "button 10"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |11-> if (List.length (!current) > 10)
-     then (print_string "button 11"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |12-> if (List.length (!current) > 11)
-     then (print_string "button 12"; print_string (get ids (grid_num-1)).game_name);
+     then player_id:= (join_lobby ((get ids (grid_num-1)).game_id) (!username) ident)
 
    |13-> if List.length !prev > 0
      then (next:= (!current @ !next);
@@ -240,8 +238,9 @@ let rec mouse_pos () =
                    lob_interactive ());)
 
             else if event.key == '\r'
-
+            (* CREATE NEW LOBBY *)
             then (open_graph " 500x500";
+                  player_id:= (create_lobby (!username) (!lobbyname) ident);
                   set_color white; fill_rect 0 0 x_size y_size;
                   moveto 0 (x_size/2); set_color black;
                   draw_string "Info submitted. Waiting...";)

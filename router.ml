@@ -3,6 +3,7 @@ open Stype
 open Lwt
 open Cohttp
 open Cohttp_lwt_unix
+module C = Cohttp_lwt_unix.Client
 
 (******************************************************************************
    This router contains code for the GUI to deal with requests. In general
@@ -91,8 +92,8 @@ let make_newtwork_request
   let req_type = get_request_type router body in
   let mapped_body =
   match req_type with
-  | Get -> Client.get (Uri.of_string url) >>= json_of_resp >|= map
-  | Post body -> Client.post ~body:(resp_of_json body) (Uri.of_string url)
+  | Get -> C.get (Uri.of_string url) >>= json_of_resp >|= map
+  | Post body -> C.post ~body:(resp_of_json body) (Uri.of_string url)
     >>=  json_of_resp >|= map in
   let body = Lwt_main.run mapped_body in
   callback body
@@ -121,33 +122,26 @@ let ident = (fun x -> x)
    Game Requests
  ******************************************************************************)
 
-(* [get_world_state] returns the current world state of the model*)
-let get_world_state id game_id (callback) =
-  make_get_request id game_id 0 "" GetState state_of_json callback
+let get_world_state game_id player_id (callback) =
+  make_get_request player_id game_id 0 "" GetState state_of_json callback
 
-  (* [fire] tells the world to fire a shot and for the user*)
-let fire id game_id gun_id callback =
-  make_get_request id game_id gun_id "" Fire state_of_json callback
+let fire game_id player_id gun_id callback =
+  make_get_request player_id game_id gun_id "" Fire state_of_json callback
 
-(* [move_location] tells the world where in which direction a player moved*)
-let move_location id game_id (x,y) callback =
+let move_location game_id player_id (x,y) callback =
   let body =  `List [`Float (float_of_int x); `Float (float_of_int y)] in
-  make_post_request id game_id Move body state_of_json callback
-
+  make_post_request player_id game_id Move body state_of_json callback
 
 (******************************************************************************
    Lobby Requests
 ******************************************************************************)
 
-(* [get_lobbies] gets thec current lobbies in the game*)
 let get_lobbies (callback) =
   make_get_request 0 0 0 "" GetLobby description_of_json callback
 
-(* [get_lobbies] allows the user to create a lobby *)
-let create_lobby player_name game_name callback =
+let create_lobby game_name player_name callback =
   let json_body = create_post game_name player_name in
   make_post_request 0 0 CreateLobby json_body create_response_of_json callback
 
-(* [join_lobby] takes a player places them into a lobby_id *)
 let join_lobby game_id player_name callback =
   make_get_request 0 game_id  0 player_name JoinLobby join_response_of_json callback

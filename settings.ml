@@ -79,10 +79,8 @@ let max_sq_distance = 10000.00
 let client_width = 1920
 let client_height = 1000
 
-(* Delay per client-side tick *)
-let client_local_cooldown = 0.02
-
-let client_network_cooldown = 0.10
+(* Delay per client-side tick in milliseconds. *)
+let client_tick_cooldown = 10
 
 (* Player movement per client-side tick *)
 let client_player_speed = 5

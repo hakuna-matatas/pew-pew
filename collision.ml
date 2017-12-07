@@ -86,7 +86,7 @@ let bin_replace b e = e :: (bin_remove b e)
 let sqdist (x1, y1) (x2, y2) =
   let x = x2 -. x1 in
   let y = y2 -. y1 in
-    (x*.x) +. (y*.y)
+  (x*.x) +. (y*.y)
 
 let intersect e1 e2 =
   let r = (to_rad e1) +. (to_rad e2) in
@@ -142,7 +142,7 @@ let uncheck g e =
   | (e1, e2) :: t -> 
     let id = to_id e in
     if (id = to_id e1) || (id = to_id e2) then uncheck' g e acc t
-    else uncheck' g e ((e1, e2) :: t) t in
+    else uncheck' g e ((e1, e2) :: acc) t in
   g.coll <- uncheck' g e [] g.coll
 
 (* Deletes entity [e] associated with [cells] from the spatial hashmap. *)

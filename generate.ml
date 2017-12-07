@@ -29,6 +29,7 @@ let gun n pos =
   let g = Armory.create () in
   { g with 
     g_id  = !n;
+    g_cd  = 0;
     g_own = (-1);
     g_pos = pos;
     g_fire = fun p -> g.g_fire p |> List.map 
@@ -53,5 +54,6 @@ let player n pos id =
     p_pos  = pos;
     p_rad  = player_radius;
     p_dir  = N;
-    p_inv  = []
+    p_inv  = [];
+    p_last = ""
   }  
