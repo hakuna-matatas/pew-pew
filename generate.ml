@@ -29,6 +29,7 @@ let gun n pos =
   let g = Armory.create () in
   { g with 
     g_id  = !n;
+    g_cd  = 0;
     g_own = (-1);
     g_pos = pos;
     g_fire = fun p -> g.g_fire p |> List.map 
