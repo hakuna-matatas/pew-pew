@@ -18,7 +18,7 @@ let corner_pos px py =
   (get_bl_x px py, get_bl_y px py)
 
 (* Calculates the position of world elements
-   relative to the top left corner of the screen *)
+   relative to the bottom left corner of the screen *)
 let get_rel_pos (elem_x, elem_y) =
   let (px, py) = !player_pos in
   let (tl_x, tl_y) = corner_pos px py in
@@ -91,6 +91,15 @@ let draw_hud pid gun players =
   draw_string ("HP: " ^ hp);
   get_gcolor gun;
   draw_curr_gun px py p.p_rad p.p_dir
+
+let draw_ring rad =
+  let (px, py) = (500, 500) in
+  set_line_width 200;
+  set_color black;
+  draw_circle px py (rad+80);
+  set_line_width 50;
+  set_color red;
+  draw_circle px py rad
 
 let draw_state
     {id;name;size;radius;ammo;bullets;players;guns;rocks}
