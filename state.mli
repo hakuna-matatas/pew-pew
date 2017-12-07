@@ -20,7 +20,7 @@ val to_json_string: t -> Type.id -> string
 
 (* [to_description st] is the JSON representation of a game description
  * as defined by the API. *)
-val to_description: t -> Yojson.json
+val to_description: t -> Yojson.Basic.json
 
 (* [to_list st] is the list of all entities in [st]. *)
 val to_list: t -> Type.entity list
