@@ -35,6 +35,13 @@ let to_pos = function
 | Player (_, _, pos)
 | Rock   (_, _, pos) -> pos
 
+let to_string = function
+| Ammo   -> "ammo"
+| Bullet -> "bullet"
+| Gun    -> "gun"
+| Player -> "player"
+| Rock   -> "rock"
+
 (* Determines if object should be checked for collision. Only bullets and players
  * move per step, so we should only check those. *)
 let dynamic = function
@@ -163,13 +170,15 @@ let remove g e =
   let cells  = H.find g.prev id in
   delete g e cells
 
-let test g e = e
+let test g e = let r = e
   |> to_cells
   |> List.map (fun c -> Hashtbl.find_opt g.grid c)
   |> List.filter (fun b -> match b with None -> false | _ -> true)
   |> List.map (fun b -> match b with Some b' -> b' | _ -> failwith "Unreachable")
   |> List.map (fun b -> check e b)
-  |> List.flatten
+  |> List.flatten in
+  print_endline "Collided with these entities: "
+  List.iter (fun (e, e') -> print_string ((to_string e) ^ ", " ^ (to_string e') ^ " ")) r; r
 
 let update g e = remove g e; add g e
 
