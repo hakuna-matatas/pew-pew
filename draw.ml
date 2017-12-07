@@ -5,13 +5,13 @@ open Ctype
 let get_bl_x px py =
   let half_screen = client_width / 2 in
   if px < half_screen then 0
-  else if px > map_width - half_screen then map_width - client_width
+  else if px > int_of_float map_width - half_screen then int_of_float map_width - client_width
   else px - (client_width / 2)
 
 let get_bl_y px py =
   let half_screen = client_height / 2 in
   if py < half_screen then 0
-  else if py > map_height - half_screen then map_height - client_height
+  else if py > int_of_float map_height - half_screen then int_of_float map_height - client_height
   else py - (client_height / 2)
 
 let corner_pos px py =
@@ -19,8 +19,7 @@ let corner_pos px py =
 
 (* Calculates the position of world elements
    relative to the bottom left corner of the screen *)
-let get_rel_pos (elem_x, elem_y) =
-  let (px, py) = !player_pos in
+let get_rel_pos (elem_x, elem_y) (px, py) =
   let (tl_x, tl_y) = corner_pos px py in
   (elem_x - tl_x, elem_y - tl_y)
 
@@ -28,43 +27,45 @@ let get_gcolor = function
   | "pistol" -> set_color red
   | _        -> set_color black
 
-let draw_ammo a =
-  let (ax, ay) = get_rel_pos a.a_pos in
+let draw_ammo ppos a =
+  let (ax, ay) = get_rel_pos a.a_pos ppos in
   get_gcolor a.a_type;
   fill_circle ax ay a.a_rad
 
-let draw_ammo a =
-  List.iter draw_ammo a
+let draw_ammo a ppos =
+  List.iter (draw_ammo ppos) a
 
-let draw_bullet b =
-  let (bx,by) = get_rel_pos b.b_pos in
+let draw_bullet ppos b =
+  let (bx,by) = get_rel_pos b.b_pos ppos in
   get_gcolor b.b_type;
   fill_circle bx by b.b_rad
 
-let draw_bullets b = List.iter draw_bullet b
+let draw_bullets b ppos =
+  List.iter (draw_bullet ppos) b
 
-let draw_player p =
-  let (px,py) = get_rel_pos p.p_pos in
+let draw_player ppos p =
+  let (px,py) = get_rel_pos p.p_pos ppos in
   set_color blue;
   fill_circle px py p.p_rad
 
-let draw_players p =
-  List.iter draw_player p
+let draw_players p ppos =
+  List.iter (draw_player ppos) p
 
-let draw_gun g =
-  let (gx,gy) = get_rel_pos g.g_pos in
+let draw_gun ppos g =
+  let (gx,gy) = get_rel_pos g.g_pos ppos in
   get_gcolor g.g_type;
   fill_circle gx gy g.g_rad
 
-let draw_guns g = List.iter draw_gun g
+let draw_guns g ppos =
+  List.iter (draw_gun ppos) g
 
-let draw_rock rock =
-  let (rx,ry) = get_rel_pos rock.r_pos in
+let draw_rock ppos rock =
+  let (rx,ry) = get_rel_pos rock.r_pos ppos in
   set_color black;
   fill_circle rx ry rock.r_rad
 
-let draw_rocks r =
-  List.iter draw_rock r
+let draw_rocks r ppos =
+  List.iter (draw_rock ppos) r
 
 let line_len = 3
 
@@ -83,9 +84,8 @@ let draw_curr_gun px py pr dir =
   moveto px py;
   lineto x' y'
 
-let draw_hud pid gun players =
-  let p = List.find (fun p' -> p' = pid) players in
-  let (px, py) = get_rel_pos p.p_pos in
+let draw_hud p gun =
+  let (px, py) = p.p_pos in
   let hp = p.p_hp |> string_of_int in
   set_text_size 20;
   draw_string ("HP: " ^ hp);
@@ -103,10 +103,12 @@ let draw_ring rad =
 
 let draw_state
     {id;name;size;radius;ammo;bullets;players;guns;rocks}
-    pid gun =
-  draw_ammo ammo;
-  draw_bullets bullets;
-  draw_players players;
-  draw_guns guns;
-  draw_rocks rocks;
-  draw_hud pid gun players
+    p gun =
+  let ppos = p.p_pos in
+  draw_ammo ammo ppos;
+  draw_bullets bullets ppos;
+  draw_players players ppos;
+  draw_guns guns ppos;
+  draw_rocks rocks ppos;
+  draw_hud p gun;
+  draw_ring radius
