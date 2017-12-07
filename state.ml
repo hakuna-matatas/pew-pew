@@ -74,7 +74,7 @@ let to_json_string s p_id =
   let b = near s p (fun b -> b.b_pos) s.bullets bullet_to_json in
   let r = near s p (fun r -> r.r_pos) s.rocks rock_to_json in
   let g = near_guns s p in
-  let p = near s p (fun p -> p.p_pos) s.players player_to_json in
+  let p = map_hash (fun p -> player_to_json p) s.players in
   Yojson.Basic.to_string (`Assoc [
     ("id"      , `Int s.s_id);
     ("name"    , `String s.s_name);
