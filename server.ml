@@ -5,10 +5,7 @@ open Yojson
 open State
 
 (* Each element in the lobby has type:
-	 (
-	 game_id <int>, 
-	 state <state>
-	 )
+	 (game_id, state)
 *)
 let lobby = ref []
 
@@ -28,6 +25,9 @@ type request =
 	body: string;
 	params: (string * string) list
 }
+
+(* Getting the Games *)
+let get_lobby () = lobby
 
 (* --------------------------------- *)
 (*                                   *)
