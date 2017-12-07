@@ -10,7 +10,7 @@ open Ctype
 val get_world_state: id -> int -> (state -> 'a) -> 'a
 
 (* [get_lobbies] gets thec current lobbies in the game *)
-val get_lobbies: id -> (description list -> 'a) -> 'a
+val get_lobbies: (description list -> 'a) -> 'a
 
 (* [move_location] tells the world where in which direction a player moved*)
 val move_location:  id -> int -> pos -> (state -> 'a) -> 'a
