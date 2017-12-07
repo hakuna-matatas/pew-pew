@@ -5,17 +5,18 @@ open Sdlevent
 open Sdlkey
 
 type t = {
-  p_id        : id;
-  g_id        : id;
+  clp_id      : id;
+  clg_id      : id;
+  mutable sel : int;
   mutable pos : pos;
 }
 
-let create g_id p_id = {
-  p_id; g_id; pos = (0, 0)
+let create clg_id clp_id = {
+  clp_id; clg_id; pos = (0, 0); sel = 0
 }
 
 let to_pos st game =
-  let p = List.find (fun p' -> p'.p_id = st.p_id) game.players in p.p_pos
+  let p = List.find (fun p' -> p'.p_id = st.clp_id) game.players in p.p_pos
 
 let get_direction () =
   if is_key_pressed KEY_w && is_key_pressed KEY_a then Some NW else
@@ -40,27 +41,35 @@ let move st d =
   | E  -> st.pos <- (x + cps , y)
   | S  -> st.pos <- (x , y - cps)
   | W  -> st.pos <- (x - cps , y) in
-  clear_graph (); draw_state s
+  clear_graph ()
 
-let rec local_loop st () =
-  Unix.sleepf client_local_cooldown;
+let rec loop st () =
+  Sdltimer.delay client_tick_cooldown;
+
   let _ = match get_direction () with
   | None   -> ()
   | Some d -> move st d in
+  
+  let st' = Router.move_location st.clg_id st.clp_id st.pos (fun s -> s) in
+  let p' = List.find (fun p -> p.p_id = st.clp_id) st'.players in
+  let _ = st.pos <- p'.p_pos in 
+
+  let _ = if is_key_pressed KEY_q then st.sel <- st.sel - 1 else () in
+  let _ = if is_key_pressed KEY_e then st.sel <- st.sel + 1 else () in
+  let g_id = List.nth p'.p_inv (st.sel mod (List.length p'.p_inv)) in
+  let g = List.find (fun g -> g.g_id = g_id) st'.guns in
+  let _ = if is_key_pressed KEY_SPACE then
+    Router.fire st.clg_id st.clp_id g_id (fun s -> ())
+  else () in g;
+
   loop st ()
 
-let rec network_loop st () =
-  Unix.sleepf client_network_cooldown;
-  let st' = Router.get_world_state st.p_id bla bla in
-
-let main () =
+let run st =
   open_graph (" " ^ (string_of_int client_width) ^ "x" ^ (string_of_int client_height));
   set_window_title "Apex";
 
-  Sdl.init [`EVENTTHREAD; `VIDEO];
+  Sdl.init [`EVENTTHREAD; `VIDEO; `TIMER];
   Sdlkey.enable_key_repeat ?delay:(Some 0) ?interval:(Some 10) ();
   Sdlvideo.set_video_mode 1 1 [];
 
-  loop state_test ()
-
-let () = main ()
+  loop st ()

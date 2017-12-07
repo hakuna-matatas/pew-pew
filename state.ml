@@ -338,8 +338,8 @@ let fire s p_id g_id =
   if p.p_hp <= 0 then destroy_player s p.p_id else
   if not (List.exists (fun id -> id = g_id) p.p_inv) then () else
   if not (g.g_own = p.p_id && g.g_cd = 0) then () else
-  let g' = {g with g_cd = g.g_rate} in
-  let _  = H.replace s.guns g_id g' in
+  let _ = H.replace s.guns g_id {g with g_cd = g.g_rate} in
+  let _ = H.replace s.players p.p_id {p with p_last = g.g_type} in
   let bullets = Generate.bullet s.gen p g in
   List.iter (fun b -> 
       let _ = H.add s.bullets b.b_id b in

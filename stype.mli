@@ -31,6 +31,7 @@ type player = {
   p_rad  : rad;
   p_dir  : dir;
   p_inv  : id list;
+  p_last : name
 }
 
 type gun = {
@@ -114,7 +115,8 @@ val gun_to_entity : gun -> entity
  *    "dir"  : "NW",
  *    "inv"  : ["gun_id0", "gun_id1"],
  *    "pos"  : [9999.99, 0.00],
- *    "rad"  : 34.22
+ *    "rad"  : 34.22,
+ *    "last" : "Pistol"
  *  }
  *)
 val player_to_json : player -> Yojson.Basic.json

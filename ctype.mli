@@ -29,7 +29,8 @@ type player = {
   p_pos  : pos;
   p_rad  : rad;
   p_dir  : dir;
-  p_inv  : id list
+  p_inv  : id list;
+  p_last : name
 }
 
 type gun = {

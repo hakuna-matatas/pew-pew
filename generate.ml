@@ -54,5 +54,6 @@ let player n pos id =
     p_pos  = pos;
     p_rad  = player_radius;
     p_dir  = N;
-    p_inv  = []
+    p_inv  = [];
+    p_last = ""
   }  
