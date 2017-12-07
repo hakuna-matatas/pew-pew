@@ -5,7 +5,7 @@ test:
 	ocamlbuild -use-ocamlfind collision_test.byte && ./collision_test.byte && rm collision_test.byte
 
 gui:
-	ocamlbuild -use-ocamlfind gui.byte && ./gui.byte && rm gui.byte
+	ocamlbuild -use-ocamlfind client.byte && ./client.byte && rm client.byte
 
 router:
 	ocamlbuild -use-ocamlfind router.byte && ./router.byte

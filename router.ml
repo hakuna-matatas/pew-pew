@@ -3,6 +3,7 @@ open Stype
 open Lwt
 open Cohttp
 open Cohttp_lwt_unix
+module C = Cohttp_lwt_unix.Client
 
 (******************************************************************************
    This router contains code for the GUI to deal with requests. In general
@@ -91,8 +92,8 @@ let make_newtwork_request
   let req_type = get_request_type router body in
   let mapped_body =
   match req_type with
-  | Get -> Client.get (Uri.of_string url) >>= json_of_resp >|= map
-  | Post body -> Client.post ~body:(resp_of_json body) (Uri.of_string url)
+  | Get -> C.get (Uri.of_string url) >>= json_of_resp >|= map
+  | Post body -> C.post ~body:(resp_of_json body) (Uri.of_string url)
     >>=  json_of_resp >|= map in
   let body = Lwt_main.run mapped_body in
   callback body
@@ -122,14 +123,14 @@ let ident = (fun x -> x)
  ******************************************************************************)
 
 let get_world_state game_id player_id (callback) =
-  make_get_request p_id g_id 0 "" GetState state_of_json callback
+  make_get_request player_id game_id 0 "" GetState state_of_json callback
 
 let fire game_id player_id gun_id callback =
-  make_get_request p_id game_id g_id "" Fire state_of_json callback
+  make_get_request player_id game_id gun_id "" Fire state_of_json callback
 
 let move_location game_id player_id (x,y) callback =
   let body =  `List [`Float (float_of_int x); `Float (float_of_int y)] in
-  make_post_request id game_id Move body state_of_json callback
+  make_post_request player_id game_id Move body state_of_json callback
 
 (******************************************************************************
    Lobby Requests

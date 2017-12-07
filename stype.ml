@@ -31,6 +31,7 @@ type player = {
   p_rad  : rad;
   p_dir  : dir;
   p_inv  : id list;
+  p_last : name;
 }
 
 type gun = {
@@ -107,7 +108,8 @@ let player_to_json p =
     ("dir"  , dir_to_json p.p_dir);
     ("inv"  , `List   inv');
     ("pos"  , `List   [`Float x; `Float y]);
-    ("rad"  , `Float  p.p_rad)
+    ("rad"  , `Float  p.p_rad);
+    ("last" , `String p.p_last);
   ]
 
 let player_to_entity p = Player (p.p_id, p.p_rad, p.p_pos)

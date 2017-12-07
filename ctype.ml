@@ -26,7 +26,8 @@ type player = {
   p_pos  : pos;
   p_rad  : rad;
   p_dir  : dir;
-  p_inv  : id list
+  p_inv  : id list;
+  p_last : name
 }
 
 type gun = {
@@ -106,7 +107,8 @@ let player_of_json j = {
   p_rad  = j |> member "rad"  |> to_float |> int_of_float;
   p_pos  = pos_of_json j "pos";
   p_dir  = dir_of_json (j |> member "dir");
-  p_inv  = List.map to_int (j |> member "inv" |> to_list)
+  p_inv  = List.map to_int (j |> member "inv" |> to_list);
+  p_last = j |> member "last" |> to_string
 }
 
 let rock_of_json j = {
