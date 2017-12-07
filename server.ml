@@ -4,26 +4,30 @@ open Cohttp_lwt_unix
 open State
 
 let lobby = ref []
+let game_count = ref 0
 
 (* STATE API COMMANDS *)
 let get_st req = failwith "todo"
 
 (* LOBBY API COMMANDS *)
-let lobby_to_json lobby_id st =
+
+(* Converts a lobby type to JSON *)
+let lobby_to_json (lid,lname,st) =
 	`Assoc [
-		("name", 	  `String lobby_id);
-		("players", `List   (List.map (fun x -> `String x) (State.players st)))
+		("game_name", `String lname);
+		("game_id"  , `Int    lid);
+		("players"  , `List   (List.map (fun x -> `String x) (State.players st)))
 	]
+
+let get_lobbies _ = 
+	let body = `List (List.map lobby_to_json lobby) in
+	Server.respond_string ~status: `OK ~body ()
 
 let get_lobbyID req =
 	req.req_body 
 	|> Yojson.Basic.from_string 
 	|> member "name" 
 	|> Yojson.Basic.Util.to_string
-
-let get_lobbies _ = 
-	let body = `List (List.map lobby_to_json lobby) in
-	Server.respond_string ~status: `OK ~body ()
 
 let create_game req =
 	try 
@@ -63,12 +67,12 @@ let move req = failwith "todo"
 	 a request and returns a server response. There
 	 is a callback for each API command. *)
 let responses = [
-	("/lobby",	 "GET"),  get_st;
-	("/move", 	 "POST"), move;
-	("/shoot",	 "POST"), shoot;
-	("/lobbies", "GET"),  get_lobbies;
-	("/create",  "POST"), create_game;
-	("/join",    "POST"), join_game;
+	("/game",	  "GET"),  get_st;
+	("/move",	  "POST"), move;
+	("/shoot",  "POST"), shoot;
+	("/games",  "GET"),  get_lobbies;
+	("/create", "POST"), create_game;
+	("/join",   "POST"), join_game;
 ]
 
 (* Called whenever the server receives a request. *)

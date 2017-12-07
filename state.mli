@@ -5,30 +5,29 @@
 (* [state] is an abstract type representing the state of a game. *)
 type t
 
-type pos = (float * float)
-type rad = float
-type dir = N | NE | E | SE | S | SW | W | NW
-type id  = string
+(* [create id] returns a game with id [id]. *)
+val create : Type.id -> Type.name -> t
 
-type entity = 
-| Rock   of (id * rad * pos) 
-| Bullet of (id * rad * pos)
-| Ammo   of (id * rad * pos)
-| Gun    of (id * rad * pos)
-| Player of (id * rad * pos)
+(* [fire st p_id g_id] attempts to fire player [p_id]'s gun [g_id]. *)
+val fire : t -> Type.id -> Type.id -> unit
 
-val to_json_string: t -> string
+(* [move st p_id pos] attempts to move player [p_id] to position pos. *)
+val move : t -> Type.id -> Type.pos -> unit
 
-val to_list: t -> entity list
+(* [to_json_string st p_id] is the JSON string representation of [st] from player
+ * [p_id]'s perspective as defined by the API. *)
+val to_json_string: t -> Type.id -> string
 
-(* [add_player id st] adds the player with username [id] to the game
+(* [to_description st] is the JSON representation of a game description
+ * as defined by the API. *)
+val to_description: t -> Yojson.json
 
-	requires: [id] is a unique string representing the name of the
-						 player to be added *)
-val add_player: id -> t -> t
+(* [to_list st] is the list of all entities in [st]. *)
+val to_list: t -> Type.entity list
 
-(* [remove_player id st] removes the player with username [id] from the game 
-	 
-	 requires: [id] is the username of a player in the game. *) 
-val remove_player: id -> t -> t
+(* [create_player name st] adds the player with username [name] to the game, and
+ * returns a unique ID. *)
+val create_player: t -> Type.name -> unit
 
+(* [step st] increments the game state by one tick. *)
+val step: t -> unit
