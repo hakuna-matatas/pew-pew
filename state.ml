@@ -256,7 +256,7 @@ let order e e' = match e, e' with
 let collision s (e, e') = match order e e' with
 | Player (p_id, _, _), Ammo   (a_id, _, _)  -> collision_pa s p_id a_id
 | Player (p_id, _, _), Bullet (b_id, _, _)  -> collision_pb s p_id b_id
-| Player (p_id, _, _), Gun    (g_id, _, _)  -> collision_pg s p_id g_id
+| Player (p_id, _, _), Gun    (g_id, _, _)  -> print_endline "anything"; collision_pg s p_id g_id
 | Player (p_id, _, _), Rock   (r_id, _, _)  -> true
 | Player (p_id, _, _), Player (p_id', _, _) -> true
 | Bullet (b_id, _, _), Ammo   (a_id, _, _)  -> destroy_bullet s b_id; destroy_ammo s a_id; false
@@ -337,20 +337,32 @@ let step s =
 (* --------------------------------- *)
 
 let fire s p_id g_id =
+  let () = print_endline "1" in
   let p = H.find s.players p_id in
-  let g = H.find s.guns    g_id in
+  let () = print_endline "2" in
+  let g = H.find s.guns g_id in
+  let () = print_endline "3" in
   if p.p_hp <= 0 then destroy_player s p.p_id else
+  let () = print_endline "4" in
   if not (List.exists (fun id -> id = g_id) p.p_inv) then () else
-  if not (g.g_own = p.p_id && g.g_cd = 0) then () else
-  let _ = H.replace s.guns g_id {g with g_cd = g.g_rate} in
-  let _ = H.replace s.players p.p_id {p with p_last = g.g_type} in
-  let bullets = Generate.bullet s.gen p g in
+    let () = print_endline "5" in
+    if not (g.g_own = p.p_id && g.g_cd = 0) then () else
+      let () = print_endline "6" in
+      let _ = H.replace s.guns g_id {g with g_cd = g.g_rate} in
+      let () = print_endline "7" in
+      let _ = H.replace s.players p.p_id {p with p_last = g.g_type} in
+      let () = print_endline "8" in
+      let bullets = Generate.bullet s.gen p g in
+      let () = print_endline "9" in
   List.iter (fun b ->
       let _ = H.add s.bullets b.b_id b in
       C.update s.map (bullet_to_entity b)
-    ) bullets
+    ) bullets; print_endline "10"
 
 let move s p_id pos =
+  let (x, y) = pos in
+  if x < 0. || y < 0. then ()
+  else
   let p = H.find s.players p_id in
   if p.p_hp <= 0 then destroy_player s p.p_id else
   let _ = C.remove s.map (player_to_entity p) in

@@ -52,18 +52,18 @@ let names_from_json req =
 
 let create_game req =
 	let (g_name, p_name) = names_from_json req in
-	let gid = !game_count in
-	let (st, pid) = create gid g_name p_name in
+  let gid = !game_count in
+  let (st, pid) = create gid g_name p_name in
 	let body =
 		`Assoc [
 		   ("game_id",   `Int gid);
 			 ("player_id", `Int pid)
 		 ]
 		|> Yojson.Basic.to_string
-	in
-	game_count := !game_count + 1;
+  in
+  game_count := !game_count + 1;
 	lobby := (gid, st) :: !lobby;
-	Server.respond_string ~status:`Created ~body ()
+  Server.respond_string ~status:`Created ~body ()
 
 let rec add_player lob_lst gid p_name =
 	match lob_lst with

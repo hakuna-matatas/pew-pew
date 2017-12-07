@@ -16,5 +16,8 @@ server:
 main:
 	ocamlbuild -tag thread -use-ocamlfind main.byte && ./main.byte
 
+lobby:
+	ocamlbuild -tag thread -use-ocamlfind lobby.byte && ./lobby.byte
+
 clean:
 	ocamlbuild -clean
