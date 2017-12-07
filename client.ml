@@ -1,4 +1,4 @@
-open Graphics
+(* open Graphics
 open Settings
 open Ctype
 open Router
@@ -12,11 +12,13 @@ type t = {
 }
 
 let create g_id p_id = {
-  p_id; g_id; ref (0, 0)
+  p_id;
+  g_id;
+  pos = (0, 0);
 }
 
 let to_pos st game =
-  let p = List.find (fun p' -> p'.p_id = s.p_id) game.players in p.p_pos 
+  let p = List.find (fun p' -> p'.p_id = st.p_id) game.players in p.p_pos
 
 let get_direction () =
   if is_key_pressed KEY_w && is_key_pressed KEY_a then Some NW else
@@ -28,8 +30,8 @@ let get_direction () =
   if is_key_pressed KEY_s then Some S else
   if is_key_pressed KEY_a then Some W else None
 
-let move s d = 
-  let (x, y) = !player_pos in 
+let move s d =
+  let (x, y) = !player_pos in
   let cps  = client_player_speed in
   let cps' = int_of_float (sqrt 2. *. (float_of_int cps) /. 2.) in
   let _ = match d with
@@ -60,4 +62,4 @@ let main () =
 
   loop state_test ()
 
-let () = main ()
+let () = main () *)

@@ -48,8 +48,8 @@ module Router = struct
     | Move -> root ^ "/game?game_id=" ^ game_id ^ "&player_id=" ^ id
     | Fire -> root ^ "/fire?game_id=" ^ game_id ^ "&player_id=" ^ id ^ "&gun_id=" ^ gun_id
     | GetLobby -> root ^ "/games"
-    | CreateLobby -> root ^ "/create" ^ id
-    | JoinLobby -> root ^ "/join?game_id=" ^ id ^ "&player_name" ^ player_name
+    | CreateLobby -> root ^ "/create"
+    | JoinLobby -> root ^ "/join?game_id=" ^ id ^ "&player_name=" ^ player_name
 
   let get_request_type router body  =
     match router with
@@ -58,7 +58,7 @@ module Router = struct
     | Move -> Post (bind_post body)
     | Fire -> Get
     | CreateLobby -> Post (bind_post body)
-    | JoinLobby -> Post (bind_post body)
+    | JoinLobby -> Get
 
 end
 
@@ -140,18 +140,14 @@ let move_location id game_id (x,y) callback =
 ******************************************************************************)
 
 (* [get_lobbies] gets thec current lobbies in the game*)
-let get_lobbies id (callback) =
-  make_get_request id 0 0 "" GetLobby description_of_json callback
-
+let get_lobbies (callback) =
+  make_get_request 0 0 0 "" GetLobby description_of_json callback
 
 (* [get_lobbies] allows the user to create a lobby *)
 let create_lobby player_name game_name callback =
-  let json_body =    `Assoc [
-      ("game_name"   , `String player_name);
-      ("player_name" , `String game_name);
-    ] in
-  make_post_request 0 0 CreateLobby json_body ident callback
+  let json_body = create_post game_name player_name in
+  make_post_request 0 0 CreateLobby json_body create_response_of_json callback
 
 (* [join_lobby] takes a player places them into a lobby_id *)
 let join_lobby game_id player_name callback =
-  make_get_request 0 game_id 0 player_name JoinLobby ident callback
+  make_get_request 0 game_id  0 player_name JoinLobby join_response_of_json callback
