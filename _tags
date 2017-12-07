@@ -5,6 +5,3 @@ true: package(lwt), package(cohttp), package(cohttp-lwt-unix), package(yojson)
 
 <server.ml> : thread
 <server.{native,byte}> : thread
-
-<gui.*>: package(graphics)
-

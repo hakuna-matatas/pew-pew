@@ -5,8 +5,8 @@
 (* [state] is an abstract type representing the state of a game. *)
 type t
 
-(* [create id] returns a game with id [id]. *)
-val create : Type.id -> Type.name -> t
+(* [create game_id game_name player_name] returns a tuple [(state, player_id)]. *)
+val create : Type.id -> Type.name -> Type.name -> (t * Type.id)
 
 (* [fire st p_id g_id] attempts to fire player [p_id]'s gun [g_id]. *)
 val fire : t -> Type.id -> Type.id -> unit
