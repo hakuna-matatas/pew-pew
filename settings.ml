@@ -5,12 +5,12 @@
 (* ---------------------------- *)
 
 (* How many entities the game starts with *)
-let initial_rocks = 50
+let initial_rocks = 5000
 let initial_guns  = 10
 let initial_ammo  = 50
 
 (* Ammo per pack *)
-let ammo_count () = 10 + (Random.int 10) 
+let ammo_count () = 10 + (Random.int 10)
 
 (* HP per player *)
 let player_hp = 100
@@ -32,13 +32,13 @@ let map_width  = 15000.00
 let map_height = 15000.00
 
 (* Vision radius around player. *)
-let vision_radius = 500.00
+let vision_radius = 2000.00
 
 (* Entity radii. *)
 let player_radius = 30.00
 let ammo_radius   = 20.00
 let gun_radius    = 20.00
-let rock_radius   = 60.00
+let rock_radius   = 20.00
 
 (* ---------------------------- *)
 (*                              *)
