@@ -95,7 +95,7 @@ let gun_of_json j = {
   g_id   = j |> member "id"    |> to_int;
   g_type = j |> member "type"  |> to_string;
   g_own  = j |> member "owner" |> to_int;
-  g_rad  = j |> member "rad"   |> to_int;
+  g_rad  = j |> member "rad"   |> to_float |> int_of_float;
   g_ammo = j |> member "ammo"  |> to_int;
   g_pos  = pos_of_json j "pos";
 }

@@ -56,13 +56,13 @@ let bullet_timeout = 1000
 let constrict_rate = 0.0
 
 (* Interval between ammo drops *)
-let ammo_spawn_cd = 2000
+let ammo_spawn_cd = 500
 
 (* Number of ammo packs to drop per interval *)
 let ammo_spawn_count = 1
 
 (* Interval between gun drops *)
-let gun_spawn_cd = 1000
+let gun_spawn_cd = 500
 
 (* Number of guns to drop per interval *)
 let gun_spawn_count = 1
@@ -80,7 +80,7 @@ let client_width = 1920
 let client_height = 1000
 
 (* Delay per client-side tick in milliseconds. *)
-let client_tick_cooldown = 10
+let client_tick_cooldown = 3
 
 (* Player movement per client-side tick *)
-let client_player_speed = 10
+let client_player_speed = 6
