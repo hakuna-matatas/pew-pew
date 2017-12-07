@@ -19,7 +19,7 @@ val move_location:  id -> int -> Client.pos -> (Client.state -> 'a) -> 'a
 val fire: id -> int -> int -> (Client.state -> 'a) -> 'a
 
 (* [get_lobbies] allows the user to create a lobby *)
-val create_lobby: string -> string -> (Client.description -> 'a) -> 'a
+val create_lobby: string -> string -> (Yojson.Basic.json -> 'a) -> 'a
 
 (* [join_lobby] takes a player places them into a lobby_id *)
-val join_lobby: id -> string -> (Client.description -> 'a) -> 'a
+val join_lobby: int -> int -> (Yojson.Basic.json -> 'a) -> 'a
