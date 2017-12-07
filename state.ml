@@ -357,9 +357,11 @@ let move s p_id pos =
   let p = H.find s.players p_id in
   if p.p_hp <= 0 then destroy_player s p.p_id else
   let _ = C.remove s.map (player_to_entity p) in
-  let p' = {p with p_pos = pos} in player_to_entity p'
+  let p' = {p with p_pos = pos} in 
+  let collided = player_to_entity p'
     |> C.test s.map
     |> List.map (collision s)
     |> List.exists (fun b -> b = true) in
+  if collided then () else
   let _ = C.update s.map (player_to_entity p') in
   H.replace s.players p_id p'
