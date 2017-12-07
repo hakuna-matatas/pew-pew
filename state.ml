@@ -138,7 +138,7 @@ let create_player s id =
   let p = Generate.player s.gen (free s) id in
   let e = player_to_entity p in
   let _ = C.update s.map e in
-  H.add s.players p.p_id p
+  H.add s.players p.p_id p; p.p_id
 
 let create game_id game_name player_name = 
   let s = {
@@ -158,8 +158,8 @@ let create game_id game_name player_name =
   repeat (create_rock s) initial_rocks;
   repeat (create_gun  s) initial_guns;
   repeat (create_ammo s) initial_ammo;
-  create_player s player_name;
-  List.hd (map_hash (fun p -> (s, p.p_id)) s.players)
+  let p_id = create_player s player_name in
+  (s, p_id)
 
 let destroy_bullet s b_id = 
   let b = H.find s.bullets b_id in

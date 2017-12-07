@@ -27,7 +27,7 @@ val to_list: t -> Type.entity list
 
 (* [create_player name st] adds the player with username [name] to the game, and
  * returns a unique ID. *)
-val create_player: t -> Type.name -> unit
+val create_player: t -> Type.name -> Type.id
 
 (* [step st] increments the game state by one tick. *)
 val step: t -> unit

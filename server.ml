@@ -70,8 +70,7 @@ let create_game req =
 	lobby := (gid, st) :: !lobby;
 	Server.respond_string ~status:`Created ~body:"Created." ()
 
-
-(* let rec add_player lob_lst gid p_name =
+let rec add_player lob_lst gid p_name =
 	match lob_lst with
 	| [] 			 					 -> failwith "Cannot find lobby"
 	| (gid',st)::t ->
@@ -83,7 +82,7 @@ let join_game req =
 	let gid = List.assoc "game_id" req.params |> int_of_string in
 	let p_name = List.assoc "player_name" req.params in
 	let body = add_player !lobby gid p_name in
-	Server.respond_string ~status:`Created ~body () *)
+	Server.respond_string ~status:`Created ~body ()
 
 
 (* --------------------------------- *)
