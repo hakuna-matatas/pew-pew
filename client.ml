@@ -1,4 +1,4 @@
-(* open Graphics
+open Graphics
 open Settings
 open Ctype
 open Router
@@ -62,4 +62,4 @@ let main () =
 
   loop state_test ()
 
-let () = main () *)
+let () = main ()
