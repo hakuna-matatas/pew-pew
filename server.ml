@@ -35,20 +35,13 @@ type request =
 (*                                   *)
 (* --------------------------------- *)
 
-(* TODO ASK FOR A GAME NAME FUNCTION IN STATE *)
-(* TODO ASK FOR A LIST OF PLAYERS IN THE STATE *)
-
-(* Converts an element in lobby to JSON. *)
-(* let lobby_to_json (lid,lname,st) =
-	`Assoc [
-		("game_name", `String lname);
-		("game_id"  , `Int    lid);
-		("players"  , `List   (List.map (fun x -> `String x) (State.players st)))
-	]
-
 let get_lobbies _ = 
-	let body = `List (List.map lobby_to_json lobby) in
-	Server.respond_string ~status:`OK ~body () *)
+	let states = List.map (fun (gid,st) -> st) !lobby in
+	let body = 
+		`List (List.map to_description states)
+		|> Yojson.Basic.to_string 
+	in
+	Server.respond_string ~status:`OK ~body ()
 
 
 let names_from_json req =
@@ -63,16 +56,18 @@ let create_game req =
 	let (st, pid) = create gid g_name p_name in
 	let body = 
 		`Assoc [
-		   ("game_id",   `String gid); 
+		   ("game_id",   `Int gid); 
 			 ("player_id", `Int pid)
-		 ] in
+		 ] 
+		|> Yojson.Basic.to_string 
+	in
 	game_count := !game_count + 1;
 	lobby := (gid, st) :: !lobby;
-	Server.respond_string ~status:`Created ~body:"Created." ()
+	Server.respond_string ~status:`Created ~body ()
 
 let rec add_player lob_lst gid p_name =
 	match lob_lst with
-	| [] 			 					 -> failwith "Cannot find lobby"
+	| [] 			 		 -> failwith "Cannot find lobby"
 	| (gid',st)::t ->
 		if gid' = gid 
 		then create_player st p_name
@@ -81,7 +76,8 @@ let rec add_player lob_lst gid p_name =
 let join_game req =
 	let gid = List.assoc "game_id" req.params |> int_of_string in
 	let p_name = List.assoc "player_name" req.params in
-	let body = add_player !lobby gid p_name in
+	let body = add_player !lobby gid p_name
+		|> string_of_int in
 	Server.respond_string ~status:`Created ~body ()
 
 
@@ -92,28 +88,33 @@ let join_game req =
 (* --------------------------------- *)
 
 let find_game params =
-	let gid = List.assoc "game_id" params |> int_of_string in
+	let gid = List.assoc "game_id" params 
+		|> int_of_string in
 	List.assoc gid !lobby
 
 let shoot req =
 	let st  = find_game req.params in
-	let pid = List.assoc "player_id" req.params in
-	let gun_id = List.assoc "gun_id" req.params in
+	let pid = List.assoc "player_id" req.params 
+		|> int_of_string in
+	let gun_id = List.assoc "gun_id" req.params 
+		|> int_of_string in
 	fire st pid gun_id;
 	Server.respond_string ~status:`OK ~body:"Ok." ()
 
 let pos_from_json req =
-	req.body 
+	req.body
+	|> Yojson.Basic.from_string
 	|> to_list
 	|> List.map to_float
 	|> fun lst -> match lst with [x;y] -> (x,y) | _ -> failwith "invalid json"
 
 let move' req = 
 	let st  = find_game req.params in
-	let pid = List.assoc "player_id" req.params in
+	let pid = List.assoc "player_id" req.params 
+		|> int_of_string in
 	let pos = pos_from_json req in
 	move st pid pos;
-	Server.respond_string ~status: `OK ~body:"Ok." () 
+	Server.respond_string ~status:`OK ~body:"Ok." () 
 
 
 
@@ -123,10 +124,11 @@ let move' req =
 (*                                   *)
 (* --------------------------------- *)
 
-
-(* TODO ID OF REQUESTING PLAYER *)
 let get_st req =
-	req.params |> find_game |> to_description 
+	let st = req.params |> find_game in
+	let pid = req.params |> List.assoc "player_id" |> int_of_string in
+	let body = to_json_string st pid in
+	Server.respond_string ~status:`OK ~body ()
 
 
 (* --------------------------------- *)
@@ -140,7 +142,7 @@ let get_st req =
 	 is a callback for each API command. *)
 let responses = [
 	("/game",	  "GET"),  get_st;
-	("/move",	  "POST"), move;
+	("/move",	  "POST"), move';
 	("/shoot",  "GET"),  shoot;
 	("/games",  "GET"),  get_lobbies;
 	("/create", "POST"), create_game;
