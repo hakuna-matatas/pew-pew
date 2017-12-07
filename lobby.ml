@@ -67,7 +67,7 @@ let rec lobby () = match read_line () |> parse with
   if (!p_id <> (-1)) && (!g_id <> (-1)) then 
     let _ = Client.create !g_id !p_id |> Client.run in ()
   else
-    print_newline (); print_endline "Invalid game ID."; print_newline (); lobby ()
+    lobby ()
   
 let rec init () =
   if !p_name = "" then let _ = p_name := prompt () in init ()
