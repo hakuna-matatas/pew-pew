@@ -37,17 +37,19 @@ module Router = struct
       | Some x -> x
       | None -> raise NoPostBody
 
-  let root = ""
+  let root = "http://192.168.0.104:8000"
 
-  let get_url id game_id gun_id router =
+  let get_url id game_id gun_id player_name router =
     let id = string_of_int id in
+    let game_id = string_of_int game_id in
+    let gun_id = string_of_int gun_id in
     match router with
-    | GetState -> root ^ "/game" ^ string_of_int game_id ^ id
-    | Move -> root ^ "/move" ^ string_of_int game_id ^ id
-    | Fire -> root ^ "fire" ^ id ^ string_of_int game_id ^ string_of_int gun_id
-    | GetLobby -> root ^ "getlobby" ^ id
-    | CreateLobby -> root ^ "create_lobby" ^ id
-    | JoinLobby -> root ^ "join_lobby"  ^ id
+    | GetState -> root ^ "/game?game_id=" ^ game_id ^ "&player_id=" ^ id
+    | Move -> root ^ "/game?game_id=" ^ game_id ^ "&player_id=" ^ id
+    | Fire -> root ^ "/fire?game_id=" ^ game_id ^ "&player_id=" ^ id ^ "&gun_id=" ^ gun_id
+    | GetLobby -> root ^ "/games"
+    | CreateLobby -> root ^ "/create" ^ id
+    | JoinLobby -> root ^ "/join?game_id=" ^ id ^ "&player_name" ^ player_name
 
   let get_request_type router body  =
     match router with
@@ -83,9 +85,9 @@ let resp_of_json body =
      [body] is an optional parameter that is necessary for post requests.
      An exception is thrown if a post request does not have a body. *)
 let make_newtwork_request
-    id game_id gun_id router ?body (map: 'a -> 'b) (callback: 'b -> 'c)  =
+    id game_id gun_id player_name router ?body (map: 'a -> 'b) (callback: 'b -> 'c)  =
   let open Cohttp_lwt_unix in
-  let url = get_url id game_id gun_id router in
+  let url = get_url id game_id gun_id player_name router in
   let req_type = get_request_type router body in
   let mapped_body =
   match req_type with
@@ -100,8 +102,8 @@ let make_newtwork_request
     The [callback] then uses the mapped_response and can do anything with that.
     The [id] is the unique identification of the user.
     Precondition: The router type is a GET request. *)
-let make_get_request id game_id gun_id router map callback =
-  make_newtwork_request id game_id gun_id router map callback
+let make_get_request id game_id gun_id player_name router map callback =
+  make_newtwork_request id game_id gun_id player_name router map callback
 
 (* [make_get_request] takes a [router] which specifies the type of the request
     then uses the [map] to transform the response of the get request.
@@ -110,7 +112,7 @@ let make_get_request id game_id gun_id router map callback =
     The [id] is the unique identification of the user.
     Precondition: The router type is a POST request. *)
 let make_post_request id game_id router body map callback =
-  make_newtwork_request id game_id 0 router ~body map callback
+  make_newtwork_request id game_id 0 "" router ~body map callback
 
 (* [ident] returns itself. *)
 let ident = (fun x -> x)
@@ -121,11 +123,11 @@ let ident = (fun x -> x)
 
 (* [get_world_state] returns the current world state of the model*)
 let get_world_state id game_id (callback) =
-  make_get_request id game_id 0 GetState state_of_json callback
+  make_get_request id game_id 0 "" GetState state_of_json callback
 
   (* [fire] tells the world to fire a shot and for the user*)
 let fire id game_id gun_id callback =
-  make_get_request id game_id gun_id Fire state_of_json callback
+  make_get_request id game_id gun_id "" Fire state_of_json callback
 
 (* [move_location] tells the world where in which direction a player moved*)
 let move_location id game_id (x,y) callback =
@@ -139,7 +141,7 @@ let move_location id game_id (x,y) callback =
 
 (* [get_lobbies] gets thec current lobbies in the game*)
 let get_lobbies id (callback) =
-  make_get_request id 0 0 GetLobby description_of_json callback
+  make_get_request id 0 0 "" GetLobby description_of_json callback
 
 
 (* [get_lobbies] allows the user to create a lobby *)
@@ -151,5 +153,5 @@ let create_lobby player_name game_name callback =
   make_post_request 0 0 CreateLobby json_body ident callback
 
 (* [join_lobby] takes a player places them into a lobby_id *)
-let join_lobby id lobby_id callback =
-  make_get_request id lobby_id 0 JoinLobby ident callback
+let join_lobby game_id player_name callback =
+  make_get_request 0 game_id 0 player_name JoinLobby ident callback
