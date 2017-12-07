@@ -1,4 +1,4 @@
-true: package(lwt), package(cohttp), package(cohttp-lwt-unix), package(yojson), package(oUnit), package(sdl), package(graphics)
+true: package(lwt), package(cohttp), package(cohttp-lwt-unix), package(yojson), package(oUnit), package(sdl), package(graphics), package(str)
 
 <client.ml> : thread
 <client.{native,byte}> : thread
