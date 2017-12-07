@@ -5,8 +5,8 @@ let sleep sec =
 
 let rec step () = 
 	let states = List.map (fun (gid,st) -> st) !(Server.get_lobby ()) in
-	sleep delay; 
 	List.iter State.step states;
+	sleep delay; 
 	step ()
 
 let main () = 
