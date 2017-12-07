@@ -7,8 +7,11 @@ test:
 router:
 	ocamlbuild -use-ocamlfind router.byte && ./router.byte
 
-gui:
-	ocamlbuild -use-ocamlfind gui.byte && ./gui.byte
+server:
+	ocamlbuild -use-ocamlfind server.byte && ./server.byte
+
+main:
+	ocamlbuild -use-ocamlfind main.byte && ./main.byte
 
 clean:
 	ocamlbuild -clean

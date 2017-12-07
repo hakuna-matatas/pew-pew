@@ -1,3 +1,2 @@
-(******************************************************************************
-   No methods from the server will be exposed, hence the blank mli file.
- ******************************************************************************)
+(* Runs the server on port number [port] *)
+val run: int -> unit

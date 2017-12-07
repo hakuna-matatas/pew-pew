@@ -1,2 +1,8 @@
-true: package(lwt), package(cohttp), package(cohttp-lwt-unix), package(yojson), package(oUnit)
-<gui.*>: package(graphics), package(sdl)
+true: package(lwt), package(cohttp), package(cohttp-lwt-unix), package(yojson)
+
+<main.ml> : thread
+<main.{native,byte}> : thread
+
+<server.ml> : thread
+<server.{native,byte}> : thread
+
