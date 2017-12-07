@@ -93,13 +93,13 @@ let draw_hud pid gun players =
   draw_curr_gun px py p.p_rad p.p_dir
 
 let draw_ring rad =
-  let (px, py) = get_rel_pos (map_width, map_height) in
-  set_line_width 5;
-  set_color red;
-  draw_circle px py rad;
-  set_line_width 20;
+  let (px, py) = (500, 500) in
+  set_line_width 200;
   set_color black;
-  draw_circle px py (rad+5)
+  draw_circle px py (rad+80);
+  set_line_width 50;
+  set_color red;
+  draw_circle px py rad
 
 let draw_state
     {id;name;size;radius;ammo;bullets;players;guns;rocks}
