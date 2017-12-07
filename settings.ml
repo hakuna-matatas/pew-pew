@@ -5,9 +5,9 @@
 (* ---------------------------- *)
 
 (* How many entities the game starts with *)
-let initial_rocks = 5000
-let initial_guns  = 10
-let initial_ammo  = 50
+let initial_rocks = 5
+let initial_guns  = 5
+let initial_ammo  = 5
 
 (* Ammo per pack *)
 let ammo_count () = 10 + (Random.int 10)
@@ -25,20 +25,20 @@ let no_owner = (-1)
 (* ---------------------------- *)
 
 (* Ring of death initial radius. Starts from map center. *)
-let ring_radius = 16000.00
+let ring_radius = 10000.00
 
 (* Map dimensions. *)
-let map_width  = 15000.00
-let map_height = 15000.00
+let map_width  = 1000.00
+let map_height = 1000.00
 
 (* Vision radius around player. *)
-let vision_radius = 2000.00
+let vision_radius = 5000.00
 
 (* Entity radii. *)
-let player_radius = 30.00
-let ammo_radius   = 20.00
-let gun_radius    = 20.00
-let rock_radius   = 20.00
+let player_radius = 20.00
+let ammo_radius   = 10.00
+let gun_radius    = 10.00
+let rock_radius   = 10.00
 
 (* ---------------------------- *)
 (*                              *)
@@ -53,19 +53,19 @@ let gun_cd_rate = 1
 let bullet_timeout = 1000
 
 (* Rate at which ring of death radius decreases *)
-let constrict_rate = 0.05
+let constrict_rate = 0.0
 
 (* Interval between ammo drops *)
-let ammo_spawn_cd = 200
+let ammo_spawn_cd = 250
 
 (* Number of ammo packs to drop per interval *)
-let ammo_spawn_count = 10
+let ammo_spawn_count = 1
 
 (* Interval between gun drops *)
-let gun_spawn_cd = 1000
+let gun_spawn_cd = 500
 
 (* Number of guns to drop per interval *)
-let gun_spawn_count = 10
+let gun_spawn_count = 1
 
 (* Maximum squared distance a player can travel before flagged as cheating *)
 let max_sq_distance = 10000.00
@@ -80,7 +80,7 @@ let client_width = 1920
 let client_height = 1000
 
 (* Delay per client-side tick in milliseconds. *)
-let client_tick_cooldown = 5
+let client_tick_cooldown = 3
 
 (* Player movement per client-side tick *)
-let client_player_speed = 10
+let client_player_speed = 6
