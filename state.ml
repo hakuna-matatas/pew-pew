@@ -140,10 +140,10 @@ let create_player s id =
   let _ = C.update s.map e in
   H.add s.players p.p_id p
 
-let create id name = 
+let create game_id game_name player_name = 
   let s = {
-    s_id    = id;     
-    s_name  = name;
+    s_id    = game_id;     
+    s_name  = game_name;
     s_rad   = ring_radius;
     size    = map_width, map_height;
     time    = 0;
@@ -158,7 +158,8 @@ let create id name =
   repeat (create_rock s) initial_rocks;
   repeat (create_gun  s) initial_guns;
   repeat (create_ammo s) initial_ammo;
-  s
+  create_player s player_name;
+  List.hd (map_hash (fun p -> (s, p.p_id)) s.players)
 
 let destroy_bullet s b_id = 
   let b = H.find s.bullets b_id in
