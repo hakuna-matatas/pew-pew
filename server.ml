@@ -76,8 +76,13 @@ let rec add_player lob_lst gid p_name =
 let join_game req =
 	let gid = List.assoc "game_id" req.params |> int_of_string in
 	let p_name = List.assoc "player_name" req.params in
-	let body = add_player !lobby gid p_name
-		|> string_of_int in
+	let pid = add_player !lobby gid p_name in
+	let body = 
+		`Assoc [
+		  ("player_id", `Int pid)
+		]
+		|> Yojson.Basic.to_string 
+	in
 	Server.respond_string ~status:`Created ~body ()
 
 
@@ -141,28 +146,31 @@ let get_st req =
 	 a request and returns a server response. There
 	 is a callback for each API command. *)
 let responses = [
-	("/game",	  "GET"),  get_st;
-	("/move",	  "POST"), move';
-	("/shoot",  "GET"),  shoot;
-	("/games",  "GET"),  get_lobbies;
-	("/create", "POST"), create_game;
-	("/join",   "GET"),  join_game;
+	("/game",   get_st);
+	("/move",   move');
+	("/shoot",  shoot);
+	("/games",  get_lobbies);
+	("/create", create_game);
+	("/join",   join_game);
 ]
 
 (* Called whenever the server receives a request. *)
 let callback responses _conn req body =
 	let uri = req |> Request.uri in
-	let meth = req |> Request.meth |> Code.string_of_method in
+(* 	let meth = req |> Request.meth |> Code.string_of_method in *)
 	let headers = req |> Request.headers |> Header.to_string in
 		try
-			let params = List.map (fun p -> ((fst p), List.hd (snd p))) (Uri.query uri) in
-			let body = Cohttp_lwt.Body.to_string in
-			{body;params} |> List.assoc (Uri.path uri,meth) responses
+			let params = 
+				List.map (fun p -> ((fst p), List.hd (snd p))) (Uri.query uri) 
+			in
+			body |> Cohttp_lwt.Body.to_string 
+			>>= fun body -> {body;params} 
+					|> List.assoc (Uri.path uri |> String.trim) responses
 		with
-		| Not_found -> failwith "invalid URI"
+		| Not_found -> failwith ((Uri.path uri))
 
 (* Runs the server on [port]. *)
-let run ?(port = 8080) =
+let run port =
 	let server = 
 		Server.create ~mode:(`TCP (`Port port)) (Server.make (callback responses) ()) 
 	in

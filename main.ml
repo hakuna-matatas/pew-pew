@@ -3,8 +3,13 @@ open Server
 
 let delay = 0.033
 
-let sleep sec = ignore (Unix.select [] [] [] sec)
-(* 
-let rec step lobby = sleep delay; step (State.step lobby) *)
+let sleep sec = 
+	ignore (Unix.select [] [] [] sec)
 
-let _ = Thread.create run 8080 (* in failwith "sad" *)
+let rec step lobby = 
+	sleep delay; step lobby
+
+let main () = 
+	let _ = Thread.create run 8000 in step []
+
+let () = main ()
