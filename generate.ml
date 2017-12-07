@@ -1,4 +1,4 @@
-open Stype 
+open Stype
 open Settings
 
 type t = int ref
@@ -16,23 +16,24 @@ let ammo n pos guns =
     a_amt  = ammo_count ()
   }
 
-let bullet n p g = 
+let bullet n p g =
   let rec bullet' acc = function
   | []     -> acc
-  | b :: t -> 
-    let _ = n := !n + 1 in 
+  | b :: t ->
+    let _ = n := !n + 1 in
     bullet' ({b with b_id = !n} :: acc) t in
   bullet' [] (g.g_fire p)
 
 let gun n pos =
   let _ = n := !n + 1 in
   let g = Armory.create () in
-  { g with 
+  { g with
+    g_rad = gun_radius;
     g_id  = !n;
     g_cd  = 0;
     g_own = (-1);
     g_pos = pos;
-    g_fire = fun p -> g.g_fire p |> List.map 
+    g_fire = fun p -> g.g_fire p |> List.map
             (fun b -> {b with b_id = let _ = n := !n + 1 in !n})
   }
 
@@ -45,10 +46,10 @@ let rock n pos =
     r_rad = rad
   }
 
-let player n pos id = 
-  let _ = n := !n + 1 in 
+let player n pos id =
+  let _ = n := !n + 1 in
   {
-    p_id   = !n; 
+    p_id   = !n;
     p_name = id;
     p_hp   = player_hp;
     p_pos  = pos;
@@ -56,4 +57,4 @@ let player n pos id =
     p_dir  = N;
     p_inv  = [];
     p_last = ""
-  }  
+  }

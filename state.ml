@@ -361,7 +361,7 @@ let fire s p_id g_id =
 
 let move s p_id pos =
   let (x, y) = pos in
-  if x < 0. || y < 0. then ()
+  if x < 0. || y < 0. || x > map_width || y > map_height then ()
   else
   let p = H.find s.players p_id in
   if p.p_hp <= 0 then destroy_player s p.p_id else

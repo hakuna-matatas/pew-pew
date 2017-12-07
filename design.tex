@@ -123,11 +123,12 @@
     \end{itemize}
 
     \section{Testing Plan}
-    Each of us first implemented our separate modules first. We then tested each of our modules in the respective manner. Newton built unit tests for his collision detection algorithm and and for whether his bullet language would work as well. Alan built the server, so he used a variety of postman requests to test the server according to the API we built on apiary. Then, Talha had the client, and tested each of the individual json parsers on utop with dummy data and then once Alan was finished, both checked if the API was a sufficient replacement to Postman. Caleb then checked the lobby to see if that worked by interfacing it with the game GUI. White box testing was used, as there were only so many ways to interact with the lobby. After we ensured that the server and client could talk to one another, we made the decision to debug the server using the client. This may not have been the best idea, but as a justification, for a game, unit tests are extremely difficult to make and this seemed as the most efficient albeit not most robust methodology of testing the server. The trouble we ran into is that we owould not know if bugs were from the GUI or game model, and this did result in some lsat minute panic, but thankfully everything settled down.\\
+    Each of us first implemented our separate modules first. We then tested each of our modules in the respective manner. Newton built unit tests for his collision detection algorithm and and for whether his bullet language would work as well. Alan built the server, so he used a variety of postman requests to test the server according to the API we built on apiary. Then, Talha had the client, and tested each of the individual json parsers on utop with dummy data and then once Alan was finished, both checked if the API was a sufficient replacement to Postman. Caleb then checked the lobby to see if that worked by interfacing it with the game GUI. White box testing was used, as there were only so many ways to interact with the lobby. After we ensured that the server and client could talk to one another, we made the decision to debug the server using the client. This may not have been the best idea, but as a justification, for a game, unit tests are extremely difficult to make and this seemed as the most efficient albeit not most robust methodology of testing the server. The trouble we ran into is that we owould not know if bugs were from the GUI or game model, and this did result in some lsat minute panic, but thankfully everything settled down. We still did not implement everything we wanted to, so we would have started earlier and definitely would have had more unit tests for the state. Although I feel most of our bugs did come from the interface between the client and server.\\
     
-    Known bugs: 
-     The move request is not working
-     The join request does not work for large amount of inputs.
+    Known bugs: \\
+       \begin{itemize}
+   	\item  The shoot request is not working\\
+    \end{itemize}
 
  \section{Division of Labor}
  
