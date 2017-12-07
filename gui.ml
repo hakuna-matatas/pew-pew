@@ -119,15 +119,15 @@ let draw_state
 
 let callback state = clear_graph (); draw_state state
 
-let post_move () = move_location !id !player_pos callback
+(* let post_move () = move_location !id !player_pos callback *)
 
 let exit_cb {mouse_x;mouse_y;button;keypressed;key} =
   let (x,y) = !player_pos in
   match key with
-  | 'w' -> player_pos := (x, y - 25); post_move ()
-  | 'a' -> player_pos := (x + 25, y); post_move ()
-  | 's' -> player_pos := (x, y + 25); post_move ()
-  | 'd' -> player_pos := (x - 25, y); post_move ()
+  | 'w' -> player_pos := (x, y - 25); callback state_test
+  | 'a' -> player_pos := (x + 25, y); callback state_test
+  | 's' -> player_pos := (x, y + 25); callback state_test
+  | 'd' -> player_pos := (x - 25, y); callback state_test
   | _ -> ()
 
 
