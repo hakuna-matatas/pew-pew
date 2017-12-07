@@ -15,6 +15,8 @@ val fire : t -> id -> id -> unit
 (* [move st p_id pos] attempts to move player [p_id] to position pos. *)
 val move : t -> id -> pos -> unit
 
+val get_lock : t -> Mutex.t
+
 (* [to_json_string st p_id] is the JSON string representation of [st] from player
  * [p_id]'s perspective as defined by the API. *)
 val to_json_string: t -> id -> string
