@@ -35,13 +35,6 @@ let to_pos = function
 | Player (_, _, pos)
 | Rock   (_, _, pos) -> pos
 
-let to_string = function
-| Ammo   -> "ammo"
-| Bullet -> "bullet"
-| Gun    -> "gun"
-| Player -> "player"
-| Rock   -> "rock"
-
 (* Determines if object should be checked for collision. Only bullets and players
  * move per step, so we should only check those. *)
 let dynamic = function
@@ -51,26 +44,26 @@ let dynamic = function
 (* Determines how many bins positions can be hashed to. Ideally want more bins, but
  * we require that no object can cover an entire bin by itself.
  * *)
-let bin_scale = 
+let bin_scale =
   let r_max = max player_radius rock_radius |> max ammo_radius |> max gun_radius in
   (r_max *. 2.1,  r_max *. 2.1)
 
 (* Hashes a float position to an int cell. *)
-let to_cell (x, y) = 
-  let x_bins, y_bins = bin_scale in 
+let to_cell (x, y) =
+  let x_bins, y_bins = bin_scale in
   (int_of_float (x /. x_bins), int_of_float (y /. y_bins))
 
 (* Compares two cells for equality. *)
 let map_scale = int_of_float (map_width *. map_height)
 let cell_compare (x1, y1) (x2, y2) = (x1 * map_scale + y1) - (x2 * map_scale + y2)
 
-(* Calculates all possible cells that entity [e] can be hashed to. 
+(* Calculates all possible cells that entity [e] can be hashed to.
  *
- * caveat: only checks 4/8 extremal points (i.e. the diagonals). 
+ * caveat: only checks 4/8 extremal points (i.e. the diagonals).
  * Can fail on edge cases, but these are rare enough to make the tradeoff for speed.
  * *)
-let to_cells e = 
-  let x, y = to_pos e in 
+let to_cells e =
+  let x, y = to_pos e in
   let r = (to_rad e) *. (sqrt 2.0) /. 2.0 in
   let l = List.map to_cell [(x-.r,y-.r); (x+.r,y-.r); (x-.r,y+.r); (x+.r,y+.r)] in
   List.sort_uniq cell_compare l
@@ -79,7 +72,7 @@ let to_cells e =
 let bin_remove b e =
   let rec bin_remove' acc = function
   | []     -> acc
-  | h :: t -> 
+  | h :: t ->
     if to_id h = to_id e then bin_remove' acc t
     else bin_remove' (h :: acc) t in
   bin_remove' [] b
@@ -105,10 +98,10 @@ let create () = {grid = H.create 16; prev = H.create 16; coll = []}
  * all entities in [bin], and returns a list of all new collisions.
  *
  * Precondition: entity [e] is not in [bin]. *)
-let check e bin = 
+let check e bin =
   let rec check' acc = function
   | []      -> acc
-  | e' :: t -> if intersect e e' 
+  | e' :: t -> if intersect e e'
     then check' ((e, e') :: acc) t
     else check' acc t in
   check' [] bin
@@ -116,7 +109,7 @@ let check e bin =
 (* Inserts entity [e] associated with [cells] into the spatial hashmap. *)
 let rec insert g e cells = match cells with
 | []     -> ()
-| c :: t -> 
+| c :: t ->
   let _ = if H.mem g.grid c then
     let b  = H.find g.grid c in
     let _  = if dynamic e then g.coll <- ((check e b) @ g.coll) else () in
@@ -139,14 +132,14 @@ let rec add g e =
   insert g e cells
 
 (* Removes all collisions involving entity [e] from the
- * collision list. 
+ * collision list.
  *
  * Does not preserve order of list.
  * *)
-let uncheck g e = 
+let uncheck g e =
   let rec uncheck' g e acc = function
   | []           -> acc
-  | (e1, e2) :: t -> 
+  | (e1, e2) :: t ->
     let id = to_id e in
     if (id = to_id e1) || (id = to_id e2) then uncheck' g e acc t
     else uncheck' g e ((e1, e2) :: acc) t in
@@ -164,7 +157,7 @@ let rec delete g e cells = match cells with
     else H.replace g.grid c b'
   else () in delete g e t
 
-let remove g e = 
+let remove g e =
   let id = to_id e in
   if not (H.mem g.prev id) then () else
   let cells  = H.find g.prev id in
@@ -183,7 +176,7 @@ let test g e = let r = e
 let update g e = remove g e; add g e
 
 let free g (w, h) =
-  let rec free' () = 
+  let rec free' () =
     let pos = (Random.float w, Random.float h) in
     if H.mem g.grid (to_cell pos) then free' () else pos in
   free' ()
