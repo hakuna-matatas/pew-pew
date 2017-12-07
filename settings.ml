@@ -63,3 +63,9 @@ let gun_spawn_count = 10
 
 (* Maximum squared distance a player can travel before flagged as cheating *)
 let max_sq_distance = 10000.00
+
+(* Delay per client-side tick *)
+let client_tick_cooldown = 0.02
+
+(* Player movement per client-side tick *)
+let client_player_speed = 5

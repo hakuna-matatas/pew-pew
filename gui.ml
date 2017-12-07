@@ -1,7 +1,8 @@
 open Graphics
 open Settings
 open Client
-open Router
+open Sdlevent
+open Sdlkey
 
 let w_string = " 500x500"
 let screen_width = 500
@@ -117,19 +118,37 @@ let draw_state
   draw_guns guns;
   draw_rocks rocks
 
-let callback state = clear_graph (); draw_state state
+let get_direction () =
+  if is_key_pressed KEY_w && is_key_pressed KEY_a then Some Type.NW else
+  if is_key_pressed KEY_w && is_key_pressed KEY_d then Some Type.NE else
+  if is_key_pressed KEY_s && is_key_pressed KEY_d then Some Type.SE else
+  if is_key_pressed KEY_s && is_key_pressed KEY_a then Some Type.SW else
+  if is_key_pressed KEY_w then Some Type.N else
+  if is_key_pressed KEY_d then Some Type.E else
+  if is_key_pressed KEY_s then Some Type.S else
+  if is_key_pressed KEY_a then Some Type.W else None
 
-let post_move () = move_location !id !player_pos callback
+let move s d = 
+  let (x, y) = !player_pos in 
+  let cps  = client_player_speed in
+  let cps' = int_of_float (sqrt 2. *. (float_of_int cps) /. 2.) in
+  let _ = match d with
+  | Type.NW -> player_pos := (x - cps' , y + cps')
+  | Type.NE -> player_pos := (x + cps' , y + cps')
+  | Type.SE -> player_pos := (x + cps' , y - cps')
+  | Type.SW -> player_pos := (x - cps' , y - cps')
+  | Type.N  -> player_pos := (x , y + cps)
+  | Type.E  -> player_pos := (x + cps , y)
+  | Type.S  -> player_pos := (x , y - cps)
+  | Type.W  -> player_pos := (x - cps , y) in
+  clear_graph (); draw_state s
 
-let exit_cb {mouse_x;mouse_y;button;keypressed;key} =
-  let (x,y) = !player_pos in
-  match key with
-  | 'w' -> player_pos := (x, y - 25); post_move ()
-  | 'a' -> player_pos := (x + 25, y); post_move ()
-  | 's' -> player_pos := (x, y + 25); post_move ()
-  | 'd' -> player_pos := (x - 25, y); post_move ()
-  | _ -> ()
-
+let rec loop s () =
+  Unix.sleepf 0.02;
+  let _ = match get_direction () with
+  | None   -> ()
+  | Some d -> move s d in
+  loop s ()
 
 let main () =
   open_graph w_string;
@@ -139,40 +158,10 @@ let main () =
 
   draw_state state_test;
 
-  loop_at_exit [Key_pressed] exit_cb
+  Sdl.init [`EVENTTHREAD; `VIDEO];
+  Sdlkey.enable_key_repeat ?delay:(Some 0) ?interval:(Some 10) ();
+  Sdlvideo.set_video_mode 1 1 [];
 
+  loop state_test ()
 
 let () = main ()
-
-
-(* open Sdl
-   open Sdlevent
-   open Sdlkey
-
-   let exit_other_cb {ke_which; ke_state; keysym;keymod; keycode; unicode} =
-   let (x,y) = !player_pos in
-   (* let () = print_endline (String.make 1 keycode) in *)
-   match keycode with
-   | 'w' -> player_pos := (x, y - 25); clear_graph (); draw_state state_test
-   | 'a' -> player_pos := (x + 25, y); clear_graph (); draw_state state_test
-   | 's' -> player_pos := (x, y + 25); clear_graph (); draw_state state_test
-   | 'd' -> player_pos := (x - 25, y); clear_graph (); draw_state state_test
-   | _ -> () *)
-
-(* let rec inf () =
-   (* let open Unix in
-     Unix.sleepf 0.01; *)
-   (* pump ();
-   match poll () with
-   | Some (KEYDOWN x) ->   let () = print_endline "some" in exit_other_cb x; inf ()
-   | Some x          -> let () = print_endline "something" in inf ()
-     | None ->   let () = print_endline "none" in inf () *)
-   let keystates = get_key_state () in
-   if keystates.{int_of_key KEY_w} <> 0
-   then let () = print_endline "yay" in inf ()
-   else let () = print_endline "no" in inf() *)
-
-(* Sdl.init [`EVENTTHREAD];
-   Sdlwm.grab_input true;
-   enable_events keydown_mask;
-   inf () *)
