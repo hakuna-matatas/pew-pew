@@ -121,33 +121,26 @@ let ident = (fun x -> x)
    Game Requests
  ******************************************************************************)
 
-(* [get_world_state] returns the current world state of the model*)
-let get_world_state id game_id (callback) =
-  make_get_request id game_id 0 "" GetState state_of_json callback
+let get_world_state game_id player_id (callback) =
+  make_get_request p_id g_id 0 "" GetState state_of_json callback
 
-  (* [fire] tells the world to fire a shot and for the user*)
-let fire id game_id gun_id callback =
-  make_get_request id game_id gun_id "" Fire state_of_json callback
+let fire game_id player_id gun_id callback =
+  make_get_request p_id game_id g_id "" Fire state_of_json callback
 
-(* [move_location] tells the world where in which direction a player moved*)
-let move_location id game_id (x,y) callback =
+let move_location game_id player_id (x,y) callback =
   let body =  `List [`Float (float_of_int x); `Float (float_of_int y)] in
   make_post_request id game_id Move body state_of_json callback
-
 
 (******************************************************************************
    Lobby Requests
 ******************************************************************************)
 
-(* [get_lobbies] gets thec current lobbies in the game*)
 let get_lobbies (callback) =
   make_get_request 0 0 0 "" GetLobby description_of_json callback
 
-(* [get_lobbies] allows the user to create a lobby *)
-let create_lobby player_name game_name callback =
+let create_lobby game_name player_name callback =
   let json_body = create_post game_name player_name in
   make_post_request 0 0 CreateLobby json_body create_response_of_json callback
 
-(* [join_lobby] takes a player places them into a lobby_id *)
 let join_lobby game_id player_name callback =
   make_get_request 0 game_id  0 player_name JoinLobby join_response_of_json callback

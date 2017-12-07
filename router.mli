@@ -6,20 +6,26 @@ open Ctype
    the appropriate information and give back the appropriate state to the user.
  ******************************************************************************)
 
-(* [get_world_state] returns the current world state of the model *)
-val get_world_state: id -> int -> (state -> 'a) -> 'a
+(* [get_world_state game_id player_id callback] applies callback to 
+ * the current world state of [game_id] from the perspective of [player_id].  *)
+val get_world_state: id -> id -> (state -> 'a) -> 'a
 
-(* [get_lobbies] gets thec current lobbies in the game *)
+(* [get_lobbies callback] applies callback to a list of
+ * existing games. *)
 val get_lobbies: (description list -> 'a) -> 'a
 
-(* [move_location] tells the world where in which direction a player moved*)
-val move_location:  id -> int -> pos -> (state -> 'a) -> 'a
+(* [move_location game_id player_id pos callback] attempts to move [player_id] to
+ * [pos] in [game_id]. *)
+val move_location:  id -> id -> pos -> (state -> 'a) -> 'a
 
-(* [fire] tells the world to fire a shot and for the user*)
-val fire: id -> int -> int -> (state -> 'a) -> 'a
+(* [fire game_id player_id gun_id callback] attempts to fire [player_id]'s
+ * [gun_id] in [game_id]. *)
+val fire: id -> id -> id -> (state -> 'a) -> 'a
 
-(* [get_lobbies] allows the user to create a lobby *)
-val create_lobby: string -> string -> (create_response -> 'a) -> 'a
+(* [get_lobbies game_name player_name callback] creates [game_name] and
+ * inserts [player_name], *)
+val create_lobby: name -> name -> (create_response -> 'a) -> 'a
 
-(* [join_lobby] takes a player places them into a lobby_id *)
-val join_lobby: int -> string -> (int -> 'a) -> 'a
+(* [join_lobby game_id player_name callback] takes a player places 
+ * them into the existing [game_id]. *)
+val join_lobby: id -> name -> (id -> 'a) -> 'a
