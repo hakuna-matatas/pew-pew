@@ -27,6 +27,9 @@ let ring_radius = 6000.00
 let map_width  = 5000.00
 let map_height = 5000.00
 
+(* Vision radius around player. *)
+let vision_radius = 500.00
+
 (* Entity radii. *)
 let player_radius = 30.00
 let ammo_radius   = 20.00

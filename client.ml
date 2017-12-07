@@ -44,7 +44,7 @@ type rock = {
 }
 
 type state = {
-  id    : id;
+  id      : id;
   name    : name;
   size    : int * int;
   radius  : int;
@@ -53,6 +53,12 @@ type state = {
   players : player list;
   guns    : gun list;
   rocks   : rock list
+}
+
+type description = {
+  game_name    : name;
+  game_id      : id;
+  game_players : name list
 }
 
 let dir_of_json j =
@@ -105,7 +111,7 @@ let rock_of_json j = {
 
 let convert j f field = List.map (fun j' -> f j') (j |> member field |> to_list)
 
-let state_of_json j : state = {
+let state_of_json j = {
   id      = member "id" j  |> to_int;
   name    = member "name" j |> to_string;
   size    = pos_of_json j "size";
@@ -116,3 +122,10 @@ let state_of_json j : state = {
   players = convert j player_of_json "players";
   rocks   = convert j rock_of_json "rocks"
 }
+
+let description_of_json j = to_list j
+  |> List.map (fun j' -> {
+    game_name    = member "game_name" j' |> to_string;
+    game_id      = member "game_id"   j' |> to_int;
+    game_players = member "game_players" j' |> to_list |> List.map to_string
+  })
