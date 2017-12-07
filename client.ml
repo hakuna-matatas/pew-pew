@@ -12,12 +12,13 @@ type t = {
   mutable g   : name;
   mutable sel : int;
   mutable pos : pos;
+  mutable dir : dir;
   mutable state : state;
 }
 
 let create clg_id clp_id = 
   Router.get_world_state clg_id clp_id (fun s -> {
-      clp_id; clg_id; pos = (0, 0); sel = 0; g = ""; state = s; lock = Mutex.create ();
+      clp_id; clg_id; pos = (0, 0); sel = 0; g = ""; dir = N; state = s; lock = Mutex.create ();
   })
 
 let get_direction () =
@@ -45,7 +46,7 @@ let move st d =
   | S  -> st.pos <- (x , y - cps)
   | W  -> st.pos <- (x - cps , y) in
   let _ = Mutex.unlock st.lock in
-  clear_graph ()
+  st.dir <- d
 
 let rec local st () =
   Sdltimer.delay client_tick_cooldown;
@@ -58,7 +59,7 @@ let rec local st () =
   let _ = if is_key_pressed KEY_e then st.sel <- st.sel + 1 else () in
 
   let _ = Mutex.lock st.lock in
-  let _ = draw_state st.state st.clp_id st.g in
+  let _ = draw_state st.state st.clp_id st.g st.dir in
   let _ = Mutex.unlock st.lock in
   local st ()
 
@@ -67,7 +68,6 @@ let rec loop st () =
 
   let _ = Router.move_location st.clg_id st.clp_id st.pos (fun s -> s) in
   let st' = Router.get_world_state st.clg_id st.clp_id (fun s -> s) in
-  let _ = print_int (st'.radius) in
   let p' = List.find (fun p -> p.p_id = st.clp_id) st'.players in
 
   if List.length p'.p_inv = 0 then 
