@@ -163,15 +163,13 @@ let remove g e =
   let cells  = H.find g.prev id in
   delete g e cells
 
-let test g e = let r = e
+let test g e = e
   |> to_cells
   |> List.map (fun c -> Hashtbl.find_opt g.grid c)
   |> List.filter (fun b -> match b with None -> false | _ -> true)
   |> List.map (fun b -> match b with Some b' -> b' | _ -> failwith "Unreachable")
   |> List.map (fun b -> check e b)
-  |> List.flatten in
-  print_endline "Collided with these entities: "
-  List.iter (fun (e, e') -> print_string ((to_string e) ^ ", " ^ (to_string e') ^ " ")) r; r
+  |> List.flatten
 
 let update g e = remove g e; add g e
 

@@ -89,7 +89,6 @@ let make_newtwork_request
     id game_id gun_id player_name router ?body (map: 'a -> 'b) (callback: 'b -> 'c)  =
   let open Cohttp_lwt_unix in
   let url = get_url id game_id gun_id player_name router in
-  let _ = print_endline url in
   let req_type = get_request_type router body in
   let mapped_body =
   match req_type with
@@ -138,7 +137,6 @@ let move_location game_id player_id (x,y) callback =
 ******************************************************************************)
 
 let get_lobbies (callback) =
-  print_string "derp";
   make_get_request 0 0 0 "" GetLobby description_of_json callback
 
 let create_lobby game_name player_name callback =

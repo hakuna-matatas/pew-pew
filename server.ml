@@ -74,20 +74,15 @@ let rec add_player lob_lst gid p_name =
 		else add_player t gid p_name
 
 let join_game req =
-  let () = print_endline (List.fold_left (fun acc (x,y) -> x ^ ": " ^ y ^ "  " ^ acc) "" req.params) in
   let gid = List.assoc "game_id" req.params |> int_of_string in
-  let () = print_endline "1" in
   let p_name = List.assoc "player_name" req.params in
-  let () = print_endline "2" in
   let pid = add_player !lobby gid p_name in
-  let () = print_endline "3" in
 	let body =
 		`Assoc [
 		  ("player_id", `Int pid)
 		]
 		|> Yojson.Basic.to_string
   in
-  let () = print_endline "4" in
 	Server.respond_string ~status:`Created ~body ()
 
 
@@ -123,7 +118,6 @@ let move' req =
 	let pid = List.assoc "player_id" req.params
 		|> int_of_string in
 	let pos = pos_from_json req in
-        let _ = print_endline ("Received update: " ^ (string_of_float (fst pos)) ^ (string_of_float (snd pos))) in
   let lock = State.get_lock st in Mutex.lock lock;
   move st pid pos;
   Mutex.unlock lock;
@@ -141,7 +135,6 @@ let get_st req =
 	let st = req.params |> find_game in
 	let pid = req.params |> List.assoc "player_id" |> int_of_string in
  let body = to_json_string st pid in
- (* let () = print_endline ("json resp: " ^ body) in *)
 	Server.respond_string ~status:`OK ~body ()
 
 
