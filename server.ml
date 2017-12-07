@@ -158,8 +158,8 @@ let responses = [
 
 (* Called whenever the server receives a request. *)
 let callback responses _conn req body =
+  let _ = _conn in
 	let uri = req |> Request.uri in
-(* 	let meth = req |> Request.meth |> Code.string_of_method in *)
 	let headers = req |> Request.headers |> Header.to_string in
 		try
 			let params =
