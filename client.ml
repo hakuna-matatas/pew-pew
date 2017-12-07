@@ -57,6 +57,8 @@ let rec loop st () =
 
   let _ = if is_key_pressed KEY_q then st.sel <- st.sel - 1 else () in
   let _ = if is_key_pressed KEY_e then st.sel <- st.sel + 1 else () in
+  if List.length p'.p_inv = 0 then draw_state st' p' ""; loop st () else
+
   let g_id = List.nth p'.p_inv (st.sel mod (List.length p'.p_inv)) in
   let g = List.find (fun g -> g.g_id = g_id) st'.guns in
   let _ = if is_key_pressed KEY_SPACE then
