@@ -66,10 +66,38 @@ let draw_rock rock =
 let draw_rocks r =
   List.iter draw_rock r
 
+let line_len = 3
+
+let draw_curr_gun px py pr dir =
+  let (x', y') = match dir with
+  | N  -> px, py + pr + line_len
+  | S  -> px, py - pr - line_len
+  | E  -> px + pr + line_len, py
+  | W  -> px - pr - line_len, py
+  | NE -> px + pr + line_len, py + pr + line_len
+  | NW -> px - pr - line_len, py + pr + line_len
+  | SE -> px + pr + line_len, py - pr - line_len
+  | SW -> px - pr - line_len, py - pr - line_len
+  in
+  set_line_width 5;
+  moveto px py;
+  lineto x' y'
+
+let draw_hud pid gun players =
+  let p = List.find (fun p' -> p' = pid) players in
+  let (px, py) = get_rel_pos p.p_pos in
+  let hp = p.p_hp |> string_of_int in
+  set_text_size 20;
+  draw_string ("HP: " ^ hp);
+  get_gcolor gun;
+  draw_curr_gun px py p.p_rad p.p_dir
+
 let draw_state
-    {id;name;size;radius;ammo;bullets;players;guns;rocks} =
+    {id;name;size;radius;ammo;bullets;players;guns;rocks}
+    pid gun =
   draw_ammo ammo;
   draw_bullets bullets;
   draw_players players;
   draw_guns guns;
-  draw_rocks rocks
+  draw_rocks rocks;
+  draw_hud pid gun players
